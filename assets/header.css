@@ -1,0 +1,49 @@
+body{
+    display : block;
+    margin : 0px;
+}
+
+.main {
+    display : flex; 
+    height : 4000px;
+    align-items : center;
+    background-color : #5F85DB ;   
+    flex-direction : column;
+}
+
+.main .container{
+    display : flex;
+    height : 700px;
+    width : 1500px;
+    align-items : center;
+    justify-content : center;
+    background-color : #fff;
+}
+
+.main .container .webCam{
+    height : 90%;
+    width : 55%;
+    margin : 10px;
+    background-color : blue;
+}
+
+.main .container .graphDiv{
+    display : flex;
+    flex-direction : column ;
+    align-items : center;
+    height : 90%;
+    width : 40%;
+    margin : 10px;
+    background-color : red;
+}
+
+.main .container .graphDiv .graph1 {
+    height :50%;
+    width : 50%;
+    background-color : #fff;
+}
+.main .container .graphDiv .graph2 {
+    height : 50%;
+    width : 50%;
+    background-color : green;
+}
