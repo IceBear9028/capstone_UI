@@ -1,4 +1,12 @@
-const video = document.querySelector("#webCamTest");
+let divBox = document.getElementById('webCam');
+
+const video = document.createElement('video');
+video.autoplay = true;
+
+const testDiv = document.createElement('div');
+
+divBox.appendChild(testDiv);
+
 
 if (navigator.mediaDevices.getUserMedia) {
 	navigator.mediaDevices.getUserMedia({ video: true })

@@ -19,28 +19,15 @@ app.layout = html.Div(
         html.Div(
             className = 'container',
             children = [
-                html.Video(
-                    id = "webCam",
-                    autoPlay = True,
-                    style = {
-                        'width' : '55%',
-                        'height' : '90%'
-                    }
-                ),
                 html.Div(
                     className = "graphDiv",
                     children  = [
                         html.Div(className = "graph1"),
                         html.Div(className = "graph2")
                     ]
-                )
-            ]
-        ),
-        html.Div(
-            children = [
-                html.Video(
-                id = 'webCamTest',
-                autoPlay=True,
+                ),
+                html.Div(
+                    id = 'webCam'
                 )
             ]
         )
