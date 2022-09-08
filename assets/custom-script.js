@@ -1,12 +1,25 @@
-let divBox = document.getElementById('webCam');
+console.log('안녕하세요');
 
+
+const testDiv = document.getElementsByClassName('webCamContainer');
 const video = document.createElement('video');
+console.log(video);
+console.log(testDiv);
 video.autoplay = true;
+video.muted = true;
 
-const testDiv = document.createElement('div');
+testDiv.appendChild('video');
 
-divBox.appendChild(testDiv);
+//const video = document.createElement("video");
+//
+//const testDiv = document.createElement("div");
 
+//const testDivConsole = document.querySelector(".main.container");
+//console.log(testDivConsole);
+//console.log(divBox.childElementCount);
+//divBox.appendChild(testDiv);
+//console.log('시바련들아');
+//console.log(divBox.childElementCount);
 
 if (navigator.mediaDevices.getUserMedia) {
 	navigator.mediaDevices.getUserMedia({ video: true })

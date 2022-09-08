@@ -16,11 +16,11 @@ body{
     height : 700px;
     width : 1500px;
     align-items : center;
-    justify-content : center;
+    justify-Content : center;
     background-color : #fff;
 }
 
-.main .container .webCam{
+.main .container .webCamContainer{
     height : 90%;
     width : 55%;
     margin : 10px;

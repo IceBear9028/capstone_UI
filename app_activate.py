@@ -27,7 +27,14 @@ app.layout = html.Div(
                     ]
                 ),
                 html.Div(
-                    id = 'webCam'
+                    className = 'webCamContainer',
+                    # children = [
+                    #     html.Video(
+                    #         className = "webCam",
+                    #         autoPlay = 'autoPlay',
+                    #         muted = True,
+                    #     )
+                    # ],
                 )
             ]
         )
