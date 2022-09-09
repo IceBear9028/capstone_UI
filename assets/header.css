@@ -7,7 +7,7 @@ body{
     display : flex; 
     height : 4000px;
     align-items : center;
-    background-color : #5F85DB ;   
+    /* background-color : #5F85DB ;    */
     flex-direction : column;
 }
 
