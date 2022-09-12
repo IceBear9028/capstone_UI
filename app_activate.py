@@ -73,7 +73,8 @@ app.layout = html.Div(
         )
     ]
 )
-
+# 참고할 웹사이트
+# http://wandlab.com/blog/?p=94
 
 if __name__ == '__main__':
     app.run_server(debug=True)
