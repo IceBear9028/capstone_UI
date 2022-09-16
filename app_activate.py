@@ -90,7 +90,12 @@ app.layout = html.Div(
                                     }
                                 )
                             ]
-                            )
+                            ),
+                        html.Div(
+                            className  = 'graph3',
+                            children = []
+                        ),
+                        
                     ]
                 ),
             ]
