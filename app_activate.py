@@ -1,42 +1,17 @@
 from dash import Dash, dcc, html, Input, Output, dash_table
 import plotly.express as px
 import cv2
-from flask import Flask, Response, request
+from flask import Flask, Response, request, stream_with_context
+from src.stream_cam.streamer import Streamer
 
-from src import stream_webcam as sw
-
-streamer = sw.Streamer()
-
-# class VideoCamera(object):
-#     def __init__(self):
-#         self.video = cv2.VideoCapture(0)
-
-#     def __del__(self):
-#         self.video.release()
-#         cv2.destroyAllWindows()
-
-#     def get_frame(self):
-#         sucess, image = self.video.read()
-#         ret, jpeg = cv2.imencode('.jpg', image)
-#         return jpeg.tobytes()
-
-# def gen(camera):
-#     while True:
-#         frame = camera.get_frame()
-#         yield (b'--frame\r\n'
-#                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-
-# def video_feed():
-#     return Response(gen(VideoCamera()), 
-#                     mimetype='multipart/x-mixed-replace; boundary=frame'
-#     )
+streamcam = Streamer()
 
 # 1. 데이터 프레임 불러오기
 
 # 2. 그래프 저장
 graph_id_1 = 'focus1'
 graph_id_2 = 'focus2'
-
+frame = 'webcam_frame'
 
 # 3. 웹 레이아웃 설정
 server = Flask(__name__)
@@ -52,7 +27,9 @@ app.layout = html.Div(
         html.Div(
             className = "realtimeFocus",
             children = [
-                
+                html.Img(
+                    src = "/"
+                )
             ]
         ),
     ]
@@ -71,6 +48,34 @@ def focus_1():
         
     )
 
+@server.route('/')
+def stream():
+    src = request.args.get('src', default=0, type = int)
+    try :
+        
+        return Response(
+                                stream_gen( src ) ,
+                                mimetype='multipart/x-mixed-replace; boundary=frame' )
+        
+    except Exception as e :
+        
+        print('[wandlab] ', 'stream error : ',str(e))
+
+def stream_gen( src ):   
+  
+    try : 
+        
+        streamcam.run( src )
+        
+        while True :
+            
+            frame = streamcam.bytescode()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+                    
+    except GeneratorExit :
+        #print( '[wandlab]', 'disconnected stream' )
+        streamcam.stop()
 
 if __name__ == '__main__':
     app.run_server(debug=True)

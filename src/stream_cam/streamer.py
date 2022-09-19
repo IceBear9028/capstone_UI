@@ -101,6 +101,8 @@ class Streamer :
             fps = 1
             
         return fps
+
+    
                    
     def __exit__(self) :
         print( '* streamer class exit')
