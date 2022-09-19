@@ -4,5 +4,3 @@ def test_1():
 def test_2():
     print("test_2_함수")
 
-test_1()
-test_2()

@@ -1,7 +1,11 @@
 from dash import Dash, dcc, html, Input, Output, dash_table
 import plotly.express as px
 import cv2
-from flask import Flask, Response
+from flask import Flask, Response, request
+
+from src import stream_webcam as sw
+
+streamer = sw.Streamer()
 
 # class VideoCamera(object):
 #     def __init__(self):
@@ -39,67 +43,18 @@ server = Flask(__name__)
 app = Dash(__name__, server=server)
 
 app.layout = html.Div(
-    className="main",
-    children=[
+    className = "container",
+    children = [
         html.Div(
-            className='title',
-            children=[html.H1("focus-capstone")],
-            style={
-                'width': '1500px',
-                'justify-content': 'flex-start',
-                'padding-left': '20px'
-            }
         ),
+        html.Div(),
+        html.Div(),
         html.Div(
-            className='container',
-            children=[
-                html.Div(
-                    className = 'webCamContainer',
-                    children = [
-                        html.Div(
-                            style = {
-                                'width' : '100%',
-                                'height' : '100%'
-                            }
-                        )
-                    ]
-                ),
-                html.Div(
-                    className="graphDiv",
-                    children=[
-                        html.Div(
-                            className="graph1",
-                            children = [
-                                dcc.Graph(
-                                    id = graph_id_1,
-                                    style = {
-                                        'width':'90%',
-                                        'height' : '80%',
-                                    }
-                                )
-                            ]
-                            ),
-                        html.Div(
-                            className="graph2",
-                            children = [
-                                dcc.Graph(
-                                    id = graph_id_2,
-                                    style = {
-                                        'width' : '90%',
-                                        'height' : '80%'
-                                    }
-                                )
-                            ]
-                            ),
-                        html.Div(
-                            className  = 'graph3',
-                            children = []
-                        ),
-                        
-                    ]
-                ),
+            className = "realtimeFocus",
+            children = [
+                
             ]
-        )
+        ),
     ]
 )
 # 참고할 웹사이트
@@ -119,3 +74,12 @@ def focus_1():
 
 if __name__ == '__main__':
     app.run_server(debug=True)
+
+
+# $ pip install --upgrade pip
+# $ pip install cython
+# $ pip install "numpy<17"
+# $ pip install imutils
+# $ pip install flask
+# $ pip install opencv-python
+# $ pip install opencv-contrib-python
