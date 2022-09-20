@@ -62,6 +62,7 @@ class Streamer :
                 # grabbed(성공여부) = True 이면 Queue 자료형에 프레임을 하나씩 추가한다.
                 if grabbed :
                     self.Q.put(frame)
+                    
     def clear(self):
         with self.Q.mutex:
             self.Q.queue.clear()
@@ -75,7 +76,7 @@ class Streamer :
         return np.ones(shape = [self.height, self.width, 3], dtype=np.uint8)
 
     def bytescode(self):
-        if not self.capture.isOpend():
+        if not self.capture.isOpened():
             frame = self.blank()
         
         else:
