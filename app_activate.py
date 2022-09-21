@@ -2,7 +2,7 @@ from dash import Dash, dcc, html, Input, Output, dash_table
 import plotly.express as px
 import cv2
 from flask import Flask, Response, request, stream_with_context
-from src.stream_cam.streamer import Streamer
+from src.model_api.streamer import Streamer
 
 streamcam = Streamer()
 
@@ -23,7 +23,12 @@ app.layout = html.Div(
         html.Div(
         ),
         html.Div(),
-        html.Div(),
+        html.Div(
+            className = 'graphContainer',
+            children =[
+                dcc.Graph(id = graph_id_1)
+            ]
+        ),
         html.Div(
             className = "realtimeFocus",
             children = [
