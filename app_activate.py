@@ -67,8 +67,14 @@ def stream_gen( src ):
         while True :
             
             frame = streamcam.bytescode()
+            # 1. 갖고온 frame 으로 웹페이지에 넣어줌
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+            
+            # 2. 깆고온 frame 으로 집중도 추출
+            streamcam.focus_result()
+
+            ## 여기다가, 프레임을 넣어주는 기능을 작성할 것 
                     
     except GeneratorExit :
         #print( '[wandlab]', 'disconnected stream' )
