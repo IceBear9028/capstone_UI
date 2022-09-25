@@ -129,7 +129,7 @@ class Streamer :
                     frame = self.blank()
                 else:
                     frame = self.read()
-                    if frame == None:
+                    if frame.any() == False :
                         print("Ignoring empty camera frame.")
                         self.capture.release()
                         cv2.destroyAllWindows()
@@ -151,7 +151,7 @@ class Streamer :
                         moving = moves_ZX.detect(pose_results)
                         self.come_off, self.face_angle = off_angle.detect(frame, fm_results)
 
-                        self.passed = pygame.time.get_thick() - self.start
+                        self.passed = pygame.time.get_ticks() - self.start
 
                         if self.passed > 500:
                             plus = [self.moving, self.face_angle, self.come_off]
@@ -179,7 +179,7 @@ class Streamer :
                     except Exception as e:
                         print("예외가 발생하였습니다.", e)
 
-        self.capture.release()
+        # self.capture.release()
         cv2.destroyAllWindows()
 
 
