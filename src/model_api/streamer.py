@@ -15,6 +15,7 @@ from fer.utils import draw_annotations
 from src.model_api.activate_class import model_start, off_angle, moves_ZX, fer
 
 
+
 class Streamer :
     def __init__(self):
 
@@ -130,6 +131,8 @@ class Streamer :
                 if not self.capture.isOpened():
                     frame = self.blank()
                 else:
+                    test_start = datetime.datetime.now()
+
                     frame = self.read()
                     if frame.any() == False :
                         print("Ignoring empty camera frame.")
@@ -169,12 +172,17 @@ class Streamer :
                                 X1 = self.scalar.transform(np.array(row).reshape(1,-1))
                                 self.focus = self.model.predict(X1)[0]
                                 self.focus_prob = self.model.predict_proba(X1)[0][1]
-                                print(datetime.datetime.now())
+
+                                print(datetime.datetime.now() - test_start)
+
+
+                                self.current_time = datetime.datetime.now()
+                                print(self.current_time)
                                 print(self.focus_prob)
                                 #print(self.focus)
                                 #print(self.focus_prob)
 
-                                return self.focus_prob
+                                return self.current_time, self.focus_prob
                             
                             except Exception as e:
                                 print("예외가 발생하였습니다.", e)

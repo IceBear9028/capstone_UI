@@ -1,10 +1,13 @@
 import time
+import plotly
 from dash import Dash, dcc, html, Input, Output, dash_table,State
 import plotly.express as px
 import cv2
 from flask import Flask, Response, request, stream_with_context
 from src.model_api.streamer import Streamer
+from src.datastroage.data_api import Datamanage
 
+datamanage = Datamanage()
 streamcam = Streamer()
 
 # 0. 필요한 변수들 선언
@@ -34,7 +37,12 @@ app.layout = html.Div(
         html.Div(
             className = 'graphContainer',
             children =[
-                dcc.Graph(id = graph_id_1)
+                dcc.Graph(id = graph_id_1),
+                dcc.Interval(
+                    id = 'interval-component',
+                    interval = 1*1000,
+                    n_intervals = 0
+                )
             ]
         ),
         html.Div(
@@ -51,11 +59,6 @@ app.layout = html.Div(
                     children = [
                         str(focus_result)
                     ]
-                ),
-                dcc.Interval(
-                    id = 'interval-component',
-                    interval = 1*1000,
-                    n_intervals = 0
                 )
             ]
         )
@@ -63,25 +66,24 @@ app.layout = html.Div(
 )
 # 참고할 웹사이트
 # http://wandlab.com/blog/?p=94
-@app.callback(
-    Output(component_id='focus',component_property='children'),
-    Input(component_id='interval-component', component_property='n_intervals'),
-    State(component_id = 'realtime_focus_result', component_property='value')
-)
-def interval_text(n):
-    text = streamcam.focus_prob
-    return
+
 
 # 4. 그래프 속성 설정
-@app.callback(
-    Output(graph_id_1, 'figure')
-)
-def focus_1():
-    fig = px.line()
-    fig.update_layout(
-        margin = dict(l=10,r=10, t=10, b=10),
-        
-    )
+# @app.callback(
+#     Output(graph_id_1, 'figure'),
+#     Input('interval-component', 'n_intervals')
+# )
+# def focus_1():
+#     fig = plotly.tools.make_subplots(rows = 1, cols = 1)
+#     fig['layout']['legend'] = {'x': 0, 'y': 1, 'xanchor': 'left'}
+
+#     fig.append_trace({
+#         'x' : streamcam.data['time'],
+#         'y' : streamcam.data['focus_prob'],
+#         'name' : 'focus',
+#         'type' : 'scatter'
+#     },1,1)
+    
 
 # 최종 집중확률 결과 표시
 
@@ -107,7 +109,8 @@ def stream_gen( src ):
             #       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
             
             # 2. 깆고온 frame 으로 집중도 추출
-            streamcam.focus_result()
+            datamanage.current_time, datamanage.focus_prob = streamcam.focus_result()
+            datamanage.start()
 
             ## 여기다가, 프레임을 넣어주는 기능을 작성할 것 
                     

@@ -1,0 +1,39 @@
+import datetime
+import time
+from turtle import distance
+import pandas as pd
+
+class Datamanage :
+    def __init__(self):
+        self.data = {
+            'time' : [],
+            'focus_prob' : [],
+            'focus' : []
+        }
+        # 시간 초기값 설정
+        self.setting_time = 5 * 10^5
+        # -> 확률이 나오기까지의 시간 -> 0.5sec 정도 걸림
+        self.distance_time = 0
+        self.preview_time = datetime.datetime.now()
+        self.current_time = 0
+
+        # 집중도값 설정
+        self.focus_prob = 0
+        self.focus = 0
+
+        # 인스턴스 설정 시, preview_time, current_time 을 외부에서 초기값을 설정할 것!
+
+    def start(self):
+        self.distance_time = self.current_time - self.preview_time
+        self.distance_time = int(self.distance_time.total_seconds() * 10^6)
+        print(self.distance_time)
+        
+        if self.setting_time < self.distance_time : 
+            self.data_append()
+            self.preview_time = self.current_time
+        else : pass
+    
+    def data_append(self):
+        self.data['time'].append(self.current_time)
+        self.data['focus_prob'].append(self.focus_prob)
+        # self.data['focus'].append(self.focus)

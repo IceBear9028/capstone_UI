@@ -1,6 +1,9 @@
-def test_1():
-    print("test_1_함수")
+import datetime
 
-def test_2():
-    print("test_2_함수")
-
+a = datetime.datetime.now()
+b = datetime.datetime.now()
+c = b - a
+d = c.total_seconds()
+print(b-a)
+print(type(c))
+print(d)
