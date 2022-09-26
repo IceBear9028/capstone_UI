@@ -1,4 +1,6 @@
+import datetime
 import time
+
 import cv2
 import imutils
 import platform
@@ -165,12 +167,14 @@ class Streamer :
 
                             try:
                                 X1 = self.scalar.transform(np.array(row).reshape(1,-1))
-                                focus = self.model.predict(X1)[0]
-                                focus_prob = self.model.predict_proba(X1)[0][1]
+                                self.focus = self.model.predict(X1)[0]
+                                self.focus_prob = self.model.predict_proba(X1)[0][1]
+                                print(datetime.datetime.now())
+                                print(self.focus_prob)
+                                #print(self.focus)
+                                #print(self.focus_prob)
 
-                                print(focus)
-                                print(focus_prob)
-
+                                return self.focus_prob
                             
                             except Exception as e:
                                 print("예외가 발생하였습니다.", e)
@@ -181,7 +185,6 @@ class Streamer :
 
         # self.capture.release()
         cv2.destroyAllWindows()
-
 
 
     def fps(self):
@@ -198,8 +201,7 @@ class Streamer :
             
         return fps
 
-    
-                   
+
     def __exit__(self) :
         print( '* streamer class exit')
         self.capture.release()
