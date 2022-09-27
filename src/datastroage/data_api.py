@@ -21,11 +21,14 @@ class Datamanage :
         self.focus_prob = 0
         self.focus = 0
 
+        # 데이터가 저장되는지 확인하기 위한 코드
+        # self.focus
+
         # 인스턴스 설정 시, preview_time, current_time 을 외부에서 초기값을 설정할 것!
 
     def start(self):
         self.distance_time = self.current_time - self.preview_time
-        self.distance_time = int(self.distance_time.total_seconds() * 10^6)
+        self.distance_time = int(self.distance_time.total_seconds() * (10**6))
         print(self.distance_time)
         
         if self.setting_time < self.distance_time : 
@@ -37,3 +40,6 @@ class Datamanage :
         self.data['time'].append(self.current_time)
         self.data['focus_prob'].append(self.focus_prob)
         # self.data['focus'].append(self.focus)
+
+    # def data_test(self):
+    #     if 

@@ -40,8 +40,9 @@ app.layout = html.Div(
                 dcc.Graph(id = graph_id_1),
                 dcc.Interval(
                     id = 'interval-component',
+                    disabled = False,
                     interval = 1*1000,
-                    n_intervals = 0
+                    n_intervals= 0
                 )
             ]
         ),
@@ -69,21 +70,22 @@ app.layout = html.Div(
 
 
 # 4. 그래프 속성 설정
-# @app.callback(
-#     Output(graph_id_1, 'figure'),
-#     Input('interval-component', 'n_intervals')
-# )
-# def focus_1():
-#     fig = plotly.tools.make_subplots(rows = 1, cols = 1)
-#     fig['layout']['legend'] = {'x': 0, 'y': 1, 'xanchor': 'left'}
+@app.callback(
+    Output(graph_id_1, 'figure'),
+    Input('interval-component', 'n_intervals')
+)
+def focus_1(num):
+    fig = plotly.tools.make_subplots(rows = 1, cols = 1)
+    fig['layout']['legend'] = {'x': 0, 'y': 1, 'xanchor': 'left'}
 
-#     fig.append_trace({
-#         'x' : streamcam.data['time'],
-#         'y' : streamcam.data['focus_prob'],
-#         'name' : 'focus',
-#         'type' : 'scatter'
-#     },1,1)
-    
+    fig.append_trace({
+        'x' : datamanage.data['time'],
+        'y' : datamanage.data['focus_prob'],
+        'name' : 'focus',
+        'type' : 'scatter'
+    },1,1)
+    return fig
+        
 
 # 최종 집중확률 결과 표시
 

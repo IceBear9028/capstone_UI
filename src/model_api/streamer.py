@@ -186,6 +186,10 @@ class Streamer :
                             
                             except Exception as e:
                                 print("예외가 발생하였습니다.", e)
+                                self.current_time = datetime.datetime.now()
+                                self.focus_prob = 0
+                                
+                                return self.current_time, self.focus_prob
                             
 
                     except Exception as e:
