@@ -1,8 +1,6 @@
-import time
 import plotly
 from dash import Dash, dcc, html, Input, Output, dash_table,State
 import plotly.express as px
-import cv2
 from flask import Flask, Response, request, stream_with_context
 from src.model_api.streamer import Streamer
 from src.datastroage.data_api import Datamanage
@@ -55,11 +53,8 @@ app.layout = html.Div(
         html.Div(
             id = 'focus',
             children = [
-                html.Div(
-                    id = 'realtime_focus_result',
-                    children = [
-                        str(focus_result)
-                    ]
+                html.H1(
+                    id = 'realtime_focus_result'
                 )
             ]
         )
@@ -87,7 +82,19 @@ def focus_1(num):
     return fig
         
 
+
 # 최종 집중확률 결과 표시
+# => 여기 작동안함, 왜??????
+@app.callback(
+    Output('realtime_focus_result', 'children'),
+    Input('interval-component', 'n_intervals')
+)
+def focus_print():
+    focus_result = datamanage.data['focus_prob']
+    return [
+        html.Span('focus_result : {0:.2f}'.format(focus_result[len(datamanage.data['focus_prob'])-1]))
+    ]
+
 
 
 # 5. 웹캠 연결용 서버

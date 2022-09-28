@@ -131,8 +131,6 @@ class Streamer :
                 if not self.capture.isOpened():
                     frame = self.blank()
                 else:
-                    test_start = datetime.datetime.now()
-
                     frame = self.read()
                     if frame.any() == False :
                         print("Ignoring empty camera frame.")
@@ -143,7 +141,7 @@ class Streamer :
                     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
                     fm_results = face_mesh.process(frame)
-                    pose_results = pose.process(frame)
+                    #pose_results = pose.process(frame)
 
                     frame.flags.writeable = True
                     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
@@ -153,7 +151,7 @@ class Streamer :
 
                     try:
                         fer_result = fer.detect(frame, emotions)
-                        moving = moves_ZX.detect(pose_results)
+                        #moving = moves_ZX.detect(pose_results)
                         self.come_off, self.face_angle = off_angle.detect(frame, fm_results)
 
                         self.passed = pygame.time.get_ticks() - self.start
@@ -172,8 +170,6 @@ class Streamer :
                                 X1 = self.scalar.transform(np.array(row).reshape(1,-1))
                                 self.focus = self.model.predict(X1)[0]
                                 self.focus_prob = self.model.predict_proba(X1)[0][1]
-
-                                print(datetime.datetime.now() - test_start)
 
 
                                 self.current_time = datetime.datetime.now()
@@ -194,7 +190,9 @@ class Streamer :
 
                     except Exception as e:
                         print("예외가 발생하였습니다.", e)
-
+                        self.current_time = datetime.datetime.now()
+                        self.focus_prob = 0
+                        return self.current_time, self.focus_prob
         # self.capture.release()
         cv2.destroyAllWindows()
 
