@@ -31,7 +31,7 @@ app.layout = html.Div(
     children = [
         html.Div(
         ),
-        html.Div(),
+        html.Div(id = 'test'),
         html.Div(
             className = 'graphContainer',
             children =[
@@ -41,7 +41,14 @@ app.layout = html.Div(
                     disabled = False,
                     interval = 1*1000,
                     n_intervals= 0
-                )
+                ),
+                dcc.Interval(
+                    id = 'test-component',
+                    disabled = False,
+                    interval = 1*10000,
+                    n_intervals= 0
+                ),               
+
             ]
         ),
         html.Div(
@@ -53,8 +60,9 @@ app.layout = html.Div(
         html.Div(
             id = 'focus',
             children = [
-                html.H1(
-                    id = 'realtime_focus_result'
+                html.Div(
+                    id = 'realtime_focus_result',
+                    children = []
                 )
             ]
         )
@@ -80,20 +88,21 @@ def focus_1(num):
         'type' : 'scatter'
     },1,1)
     return fig
-        
+         
 
 
 # 최종 집중확률 결과 표시
 # => 여기 작동안함, 왜??????
 @app.callback(
     Output('realtime_focus_result', 'children'),
-    Input('interval-component', 'n_intervals')
+    Input('test-component', 'n_intervals')
 )
 def focus_print():
-    focus_result = datamanage.data['focus_prob']
-    return [
-        html.Span('focus_result : {0:.2f}'.format(focus_result[len(datamanage.data['focus_prob'])-1]))
-    ]
+    # focus_result_list = datamanage.data['focus_prob']
+    # focus_result = focus_result_list[len(focus_result_list)-1]
+    test = 'hello_world_fuck'
+    return html.Span('focus_result : {0}'.format(test))
+
 
 
 

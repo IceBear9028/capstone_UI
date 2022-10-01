@@ -1,7 +1,5 @@
 import datetime
-import time
 from turtle import distance
-import pandas as pd
 
 class Datamanage :
     def __init__(self):

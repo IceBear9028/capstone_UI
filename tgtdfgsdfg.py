@@ -1,17 +1,21 @@
 import datetime
-
+import ssl
 import dash
 from dash import dcc, html
 import plotly
 from dash.dependencies import Input, Output
+import urllib.request as urlrq
+
+context = ssl._create_unverified_context()
+urlrq.urlopen("https://no-valid-cert", context=context)
 
 # pip install pyorbital
 from pyorbital.orbital import Orbital
 satellite = Orbital('TERRA')
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+#external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app = dash.Dash(__name__) #external_stylesheets=external_stylesheets)
 app.layout = html.Div(
     html.Div([
         html.H4('TERRA Satellite Live Feed'),
@@ -88,4 +92,4 @@ def update_graph_live(n):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port = 3000)
+    app.run_server(debug=True)
