@@ -36,6 +36,10 @@ app.layout = html.Div(
         html.Div(
             className = 'videoPlayer',
             children = [
+                html.Div(
+                    id = 'video_currentTime',
+                    children = []
+                ),
                 DashPlayer(
                     # 도움받은 사이트 :
                     # https://community.plotly.com/t/dash-player-custom-component-playing-and-controlling-your-videos-with-dash/12349
@@ -104,8 +108,6 @@ def focus_1(num):
     },1,1)
     return fig
 
-
-
 # test 체크리스트 -> play, pause
 @app.callback(
     Output('player', 'playing'),
@@ -113,6 +115,23 @@ def focus_1(num):
 )
 def play_pause_function(value):
     return "playing" in value
+
+# 현재 playtime 을 확인하는 기능.
+@app.callback(
+    Output('video_currentTime', 'children'),
+    Input('player', 'currentTime')
+)
+def current_time_check(value):
+    return [html.Span(value)]
+
+#현재의 집중도를 확인하는 기능
+@app.callback(
+    Output('focus', 'children'),
+    Input('interval-component', 'n_intervals')
+)
+def focus_check(n):
+    focus = datamanage.data['focus_prob']
+    return [html.H1(str(focus[-1]))]
 
 
 
