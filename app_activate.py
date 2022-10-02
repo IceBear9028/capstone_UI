@@ -1,9 +1,11 @@
 import plotly
+from dash_player import DashPlayer
 from dash import Dash, dcc, html, Input, Output, dash_table,State
-import plotly.express as px
+import os
 from flask import Flask, Response, request, stream_with_context
 from src.model_api.streamer import Streamer
 from src.datastroage.data_api import Datamanage
+
 
 datamanage = Datamanage()
 streamcam = Streamer()
@@ -26,10 +28,30 @@ frame = 'webcam_frame'
 server = Flask(__name__)
 app = Dash(__name__, server=server)
 
+app.scripts.config.serve_locally = True
+
 app.layout = html.Div(
     className = "container",
     children = [
         html.Div(
+            className = 'videoPlayer',
+            children = [
+                DashPlayer(
+                    # 도움받은 사이트 :
+                    # https://community.plotly.com/t/dash-player-custom-component-playing-and-controlling-your-videos-with-dash/12349
+
+                    id = 'player',
+                    url = "assets/test_Video/JSON프론트엔드2.mp4",
+                    controls = True,
+                    # https://www.youtube.com/embed/G4Hb00s3j40
+                ),
+                dcc.Checklist(
+                    id = 'test_check',
+                    options = [
+                        {"label" : "playing", "value" : "playing"},
+                    ]
+                )
+            ]
         ),
         html.Div(id = 'test'),
         html.Div(
@@ -41,14 +63,7 @@ app.layout = html.Div(
                     disabled = False,
                     interval = 1*1000,
                     n_intervals= 0
-                ),
-                dcc.Interval(
-                    id = 'test-component',
-                    disabled = False,
-                    interval = 1*10000,
-                    n_intervals= 0
-                ),               
-
+                ),          
             ]
         ),
         html.Div(
@@ -88,21 +103,16 @@ def focus_1(num):
         'type' : 'scatter'
     },1,1)
     return fig
-         
 
 
-# 최종 집중확률 결과 표시
-# => 여기 작동안함, 왜??????
+
+# test 체크리스트 -> play, pause
 @app.callback(
-    Output('realtime_focus_result', 'children'),
-    Input('test-component', 'n_intervals')
+    Output('player', 'playing'),
+    Input('test_check', 'value')
 )
-def focus_print():
-    # focus_result_list = datamanage.data['focus_prob']
-    # focus_result = focus_result_list[len(focus_result_list)-1]
-    test = 'hello_world_fuck'
-    return html.Span('focus_result : {0}'.format(test))
-
+def play_pause_function(value):
+    return "playing" in value
 
 
 
