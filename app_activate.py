@@ -1,6 +1,7 @@
 import plotly
 from dash_player import DashPlayer
 from dash import Dash, dcc, html, Input, Output, State,ctx
+from dash.exceptions import PreventUpdate
 from flask import Flask, Response, request, stream_with_context
 from src.model_api.streamer import Streamer
 from src.datastroage.data_api import Datamanage
@@ -130,13 +131,13 @@ def current_time_check(value):
     return [html.Span(value)]
 
 @app.callback(
-    Output('player', 'currentTime'),
+    Output('player', 'seekTo'),
     Input('videoForward', 'n_clicks'),
 )
 def video_forward(n_click):
-    time = 300
-    if n_click :
-        return time 
+    if 'videoForward' == ctx.triggered_id:
+        time = 300
+    return time
 
 # 현재 Playtime 에서 5초 빼기, 5초 다음으로 넘어가는 버튼 기능
 
