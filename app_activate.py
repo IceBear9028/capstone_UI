@@ -1,7 +1,6 @@
 import plotly
 from dash_player import DashPlayer
-from dash import Dash, dcc, html, Input, Output, dash_table,State
-import os
+from dash import Dash, dcc, html, Input, Output, State,ctx
 from flask import Flask, Response, request, stream_with_context
 from src.model_api.streamer import Streamer
 from src.datastroage.data_api import Datamanage
@@ -28,7 +27,7 @@ frame = 'webcam_frame'
 server = Flask(__name__)
 app = Dash(__name__, server=server)
 
-app.scripts.config.serve_locally = True
+# app.scripts.config.serve_locally = True
 
 app.layout = html.Div(
     className = "container",
@@ -40,14 +39,19 @@ app.layout = html.Div(
                     id = 'video_currentTime',
                     children = []
                 ),
+                html.Div(
+                    id = 'videoFunction',
+                    children = [
+                        html.Button('앞으로5초', id = 'videoForward'),
+                        html.Button('뒤로5초', id = 'videoBackward')
+                    ]
+                ),
                 DashPlayer(
                     # 도움받은 사이트 :
                     # https://community.plotly.com/t/dash-player-custom-component-playing-and-controlling-your-videos-with-dash/12349
-
                     id = 'player',
                     url = "assets/test_Video/JSON프론트엔드2.mp4",
                     controls = True,
-                    # https://www.youtube.com/embed/G4Hb00s3j40
                 ),
                 dcc.Checklist(
                     id = 'test_check',
@@ -116,6 +120,7 @@ def focus_1(num):
 def play_pause_function(value):
     return "playing" in value
 
+
 # 현재 playtime 을 확인하는 기능.
 @app.callback(
     Output('video_currentTime', 'children'),
@@ -123,6 +128,18 @@ def play_pause_function(value):
 )
 def current_time_check(value):
     return [html.Span(value)]
+
+@app.callback(
+    Output('player', 'currentTime'),
+    Input('videoForward', 'n_clicks'),
+)
+def video_forward(n_click):
+    time = 300
+    if n_click :
+        return time 
+
+# 현재 Playtime 에서 5초 빼기, 5초 다음으로 넘어가는 버튼 기능
+
 
 #현재의 집중도를 확인하는 기능
 @app.callback(
@@ -151,7 +168,7 @@ def stream_gen( src ):
         while True :
             
             # frame = streamcam.bytescode()
-            # 1. 갖고온 frame 으로 웹페이지에 넣어줌
+            # # 1. 갖고온 frame 으로 웹페이지에 넣어줌
             # yield (b'--frame\r\n'
             #       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
             
