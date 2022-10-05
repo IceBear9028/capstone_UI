@@ -4,9 +4,9 @@ from turtle import distance
 class Datamanage :
     def __init__(self):
         self.data = {
-            'time' : [],
+            'real_time' : [],
             'focus_prob' : [],
-            'focus' : []
+            'video_time' : []
         }
         # 시간 초기값 설정
         self.setting_time = 5 * 10^5
@@ -17,7 +17,9 @@ class Datamanage :
 
         # 집중도값 설정
         self.focus_prob = 0
-        self.focus = 0
+
+        # 비디오플레이어 값
+        self.video_time = 0
 
         # 데이터가 저장되는지 확인하기 위한 코드
         # self.focus
@@ -31,12 +33,15 @@ class Datamanage :
         
         if self.setting_time < self.distance_time : 
             self.data_append()
+            print(self.data)
             self.preview_time = self.current_time
         else : pass
     
     def data_append(self):
-        self.data['time'].append(self.current_time)
+        self.data['real_time'].append(self.current_time)
+        self.data['video_time'].append(self.video_time)
         self.data['focus_prob'].append(self.focus_prob)
+        
         # self.data['focus'].append(self.focus)
 
     # def data_test(self):

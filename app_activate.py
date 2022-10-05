@@ -9,6 +9,7 @@ from src.datastroage.data_api import Datamanage
 
 datamanage = Datamanage()
 streamcam = Streamer()
+global video_time
 
 # 0. 필요한 변수들 선언
 focus_result = streamcam.focus_prob
@@ -106,7 +107,7 @@ def focus_1(num):
     fig['layout']['legend'] = {'x': 0, 'y': 1, 'xanchor': 'left'}
 
     fig.append_trace({
-        'x' : datamanage.data['time'],
+        'x' : datamanage.data['real_time'],
         'y' : datamanage.data['focus_prob'],
         'name' : 'focus',
         'type' : 'scatter'
@@ -128,8 +129,11 @@ def play_pause_function(value):
     Input('player', 'currentTime')
 )
 def current_time_check(value):
+    global video_time
+    video_time = value
     return [html.Span(value)]
 
+# 특정 시간대로 playtime 변경
 @app.callback(
     Output('player', 'seekTo'),
     Input('videoForward', 'n_clicks'),
@@ -139,7 +143,14 @@ def video_forward(n_click):
         time = 300
     return time
 
-# 현재 Playtime 에서 5초 빼기, 5초 다음으로 넘어가는 버튼 기능
+# playtime 받기
+# @app.callback(
+#     Input('player', 'currentTime')
+# )
+# def graphData_input_video_currentTime(time):
+#     video_time = time
+#     return video_time
+    
 
 
 #현재의 집중도를 확인하는 기능
@@ -175,6 +186,7 @@ def stream_gen( src ):
             
             # 2. 깆고온 frame 으로 집중도 추출
             datamanage.current_time, datamanage.focus_prob = streamcam.focus_result()
+            datamanage.video_time = video_time
             datamanage.start()
 
             ## 여기다가, 프레임을 넣어주는 기능을 작성할 것 
