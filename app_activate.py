@@ -183,23 +183,11 @@ def focus_check(n):
 
 @app.callback(
     Output(focus_marking_player, 'children'),
-    Input(interval, 'n_intervals')
+    Input('player', 'duration')
 )
-def focus_player(n):
-        # box_list = []
-        for i in range(n):
-            # box_list.append(
-            #     html.Div(id = '{0}_box'.format(i),
-            #                 children = [], 
-            #                 style = {
-            #                     'background' : '#000',
-            #                     'border' : '1px solid red',
-            #                     'height' : 'auto',
-            #                     'width' : '10px'
-            #                     })
-            # )
-            focus_notice.generate_element(number = i)
-        return focus_notice.elements
+def focus_player(time):
+    focus_notice.generate_element(time)
+    return focus_notice.elements
 
 
 
