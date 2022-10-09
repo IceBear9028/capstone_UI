@@ -30,6 +30,7 @@ frame = 'webcam_frame'
 
 focus_marking_player = 'focus_marking_player'
 interval = 'interval'
+video_player = 'video_player'
 
 # 3. 웹 레이아웃 설정
 server = Flask(__name__)
@@ -57,7 +58,7 @@ app.layout = html.Div(
                 DashPlayer(
                     # 도움받은 사이트 :
                     # https://community.plotly.com/t/dash-player-custom-component-playing-and-controlling-your-videos-with-dash/12349
-                    id = 'player',
+                    id = video_player,
                     url = "assets/test_Video/JSON프론트엔드2.mp4",
                     controls = True,
                 ),
@@ -135,7 +136,7 @@ def focus_1(num):
 
 # test 체크리스트 -> play, pause
 @app.callback(
-    Output('player', 'playing'),
+    Output(video_player, 'playing'),
     Input('test_check', 'value')
 )
 def play_pause_function(value):
@@ -145,7 +146,7 @@ def play_pause_function(value):
 # 현재 playtime 을 확인하는 기능.
 @app.callback(
     Output('video_currentTime', 'children'),
-    Input('player', 'currentTime')
+    Input(video_player, 'currentTime')
 )
 def current_time_check(value):
     global video_time
@@ -154,22 +155,13 @@ def current_time_check(value):
 
 # 특정 시간대로 playtime 변경
 @app.callback(
-    Output('player', 'seekTo'),
+    Output(video_player, 'seekTo'),
     Input('videoForward', 'n_clicks'),
 )
 def video_forward(n_click):
     if 'videoForward' == ctx.triggered_id:
         time = 300
     return time
-
-# playtime 받기
-# @app.callback(
-#     Input('player', 'currentTime')
-# )
-# def graphData_input_video_currentTime(time):
-#     video_time = time
-#     return video_time
-    
 
 #현재의 집중도를 확인하는 기능
 @app.callback(
@@ -181,14 +173,26 @@ def focus_check(n):
     return [html.H1(str(focus[-1]))]
 
 
+### focus_notice_player 클래스 기능구현
+# a. 동영상 시간에 따라서 div 버튼이 만들어지는 기능
 @app.callback(
-    Output(focus_marking_player, 'children'),
-    Input('player', 'duration')
+    [Output(focus_marking_player, 'children'),
+    Output(video_player, 'seekTo')],
+    Input(video_player, 'duration'),
+    focus_notice.marge_elements_Input
 )
-def focus_player(time):
+def generate_notice(time):
     focus_notice.generate_element(time)
     return focus_notice.elements
 
+# b. div의 버튼 기능을 활성화 하는 기능
+# @app.callback(
+#     Output(video_player, 'seekTo'),
+#     focus_notice.marge_elements_Input
+# )
+def link_div(n_clicks):
+    if id == ctx.triggered_id:
+        return focus_notice.elements_timeline[id]
 
 
 # 5. 웹캠 연결용 서버
@@ -213,7 +217,7 @@ def stream_gen( src ):
             
             # 2. 깆고온 frame 으로 집중도 추출
             datamanage.current_time, datamanage.focus_prob = streamcam.focus_result()
-            datamanage.video_time = video_time
+            # datamanage.video_time = video_time
             datamanage.start()
 
             ## 여기다가, 프레임을 넣어주는 기능을 작성할 것 
