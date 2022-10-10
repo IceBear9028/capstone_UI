@@ -73,8 +73,8 @@ app.layout = html.Div(
                     children = focus_notice.sections,
                     style = {
                         'background' : '#fff',
-                        'width' : '1000px',
-                        'height' : '350px',
+                        'width' : '{0}px'.format(focus_notice.section_container_width),
+                        'height' : '150px',
                         'border' : '1px solid red',
                         'display' : 'flex',
                         'flex-direction' : 'row',
@@ -170,17 +170,6 @@ def current_time_check(value):
     return [html.Span(value)]
 
 
-# 특정 시간대로 playtime 변경
-@app.callback(
-    Output(video_player, 'seekTo'),
-    Input('videoForward', 'n_clicks'),
-)
-def video_forward(n_click):
-    if 'videoForward' == ctx.triggered_id:
-        time = 300
-    return time
-
-
 #현재의 집중도를 확인하는 기능
 @app.callback(
     Output('focus', 'children'),
@@ -192,32 +181,19 @@ def focus_check(n):
 
 
 ### focus_notice_player 클래스 기능구현
-# a. 동영상 시간에 따라서 div 버튼이 만들어지는 기능
 @app.callback(
-    Output('test','children'),
-    Input(video_player, 'duration')
-)
-def time_result(time):
-    focus_notice.generate_section(time)
-    return [html.H3(str(time))]
-
-@app.callback(
-    Output(focus_marking_player, 'children'),
+    Output(video_player, 'seekTo'),
     focus_notice.marge_sections_Input
 )
 def generate_notice(*args):
-    if args == ctx.triggered_id:
-        return focus_notice.section_num
+    # duration값을 한번만 받으면 더이상 받을 필요가 없음
+    # 따라서 generate_section_TF가 한번만 실행시켜주는 역할을 한다.
+    if focus_notice.generate_section_TF == False:
+        focus_notice.generate_section(args[0])
+        focus_notice.generate_section_TF = True
 
-
-# b. div의 버튼 기능을 활성화 하는 기능
-# @app.callback(
-#     Output(video_player, 'seekTo'),
-#     focus_notice.marge_elements_Input
-# )
-# def link_div(*args):
-#     if args == ctx.triggered_id:
-#         return focus_notice.elements_timeline[args]
+    else:
+        return focus_notice.sections_timeline[ctx.triggered_id]
 
 
 # 5. 웹캠 연결용 서버
