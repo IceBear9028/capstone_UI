@@ -22,5 +22,17 @@ f = {
     'a' : [7,8,9,10,11,12]
 }
 g = f['a']
+print(f['a'])
 print(g)
 print(g, g[-1])
+
+f['b'] = 10
+print(f)
+
+g = {}
+item = 0
+for i in range(10):
+    g['{0}'.format(i)] = item
+    item += 1
+
+print(g)

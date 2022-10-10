@@ -70,7 +70,7 @@ app.layout = html.Div(
                 ),
                 html.Div(
                     id = focus_marking_player,
-                    children = [],
+                    children = focus_notice.sections,
                     style = {
                         'background' : '#fff',
                         'width' : '1000px',
@@ -83,7 +83,14 @@ app.layout = html.Div(
                 )
             ]
         ),
-        html.Div(id = 'test'),
+        html.Div(
+            id = 'test',
+            style = {
+                'background' : '#030303',
+                'width' : '500px',
+                'height' : '200px'
+            }
+        ),
         html.Div(
             className = 'graphContainer',
             children =[
@@ -143,6 +150,15 @@ def play_pause_function(value):
     return "playing" in value
 
 
+# test div의 n_clicks 기능 test
+@app.callback(
+    Output('test', 'children'),
+    Input('test', 'n_clicks')
+)
+def test_nClicks(n):
+    return(html.H3(str(n)))
+
+
 # 현재 playtime 을 확인하는 기능.
 @app.callback(
     Output('video_currentTime', 'children'),
@@ -153,6 +169,7 @@ def current_time_check(value):
     video_time = int(value)
     return [html.Span(value)]
 
+
 # 특정 시간대로 playtime 변경
 @app.callback(
     Output(video_player, 'seekTo'),
@@ -162,6 +179,7 @@ def video_forward(n_click):
     if 'videoForward' == ctx.triggered_id:
         time = 300
     return time
+
 
 #현재의 집중도를 확인하는 기능
 @app.callback(
@@ -176,23 +194,30 @@ def focus_check(n):
 ### focus_notice_player 클래스 기능구현
 # a. 동영상 시간에 따라서 div 버튼이 만들어지는 기능
 @app.callback(
-    [Output(focus_marking_player, 'children'),
-    Output(video_player, 'seekTo')],
-    Input(video_player, 'duration'),
-    focus_notice.marge_elements_Input
+    Output('test','children'),
+    Input(video_player, 'duration')
 )
-def generate_notice(time):
-    focus_notice.generate_element(time)
-    return focus_notice.elements
+def time_result(time):
+    focus_notice.generate_section(time)
+    return [html.H3(str(time))]
+
+@app.callback(
+    Output(focus_marking_player, 'children'),
+    focus_notice.marge_sections_Input
+)
+def generate_notice(*args):
+    if args == ctx.triggered_id:
+        return focus_notice.section_num
+
 
 # b. div의 버튼 기능을 활성화 하는 기능
 # @app.callback(
 #     Output(video_player, 'seekTo'),
 #     focus_notice.marge_elements_Input
 # )
-def link_div(n_clicks):
-    if id == ctx.triggered_id:
-        return focus_notice.elements_timeline[id]
+# def link_div(*args):
+#     if args == ctx.triggered_id:
+#         return focus_notice.elements_timeline[args]
 
 
 # 5. 웹캠 연결용 서버
