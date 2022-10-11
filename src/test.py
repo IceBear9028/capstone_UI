@@ -19,20 +19,32 @@ f = {
     '1' : [1,2,3,4,5,6,7],
     '2' : [8,9,10,11,12,13,14],
     '3' : [15,16],
-    'a' : [7,8,9,10,11,12]
+    'a' : [7,8,9,10,11,12],
+    'c' : {'x':True, 'y':True, 'z':True},
+    'd' : {'x':{'1':{'_1':False, '__2':'a'},'2':{'_1':False, '__2':'a'},'3':{'_1':False, '__2':'a'}}}
 }
 g = f['a']
+print(f['d']['x'].values())
 print(f['a'])
 print(g)
 print(g, g[-1])
+print(f['c']['x'])
+
 
 f['b'] = 10
 print(f)
-
+print(f['d']['x'].get('__1'))
 g = {}
 item = 0
 for i in range(10):
     g['{0}'.format(i)] = item
     item += 1
+print(range(10))
 
 print(g)
+
+n = 10
+for i in range(10):
+    print('i = {0}'.format(i))
+    for j in range(i*n, 2*(i+1)*n):
+        print(j)

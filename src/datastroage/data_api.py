@@ -6,7 +6,7 @@ class Datamanage :
         self.data = {
             'real_time' : [],
             'focus_prob' : [],
-            #'video_time' : []
+            'video_time' : [],
         }
         # 시간 초기값 설정
         self.setting_time = 5 * 10^5
@@ -19,7 +19,7 @@ class Datamanage :
         self.focus_prob = 0
 
         # 비디오플레이어 값
-        #self.video_time = 0
+        self.video_time = 0
 
         # 데이터가 저장되는지 확인하기 위한 코드
         # self.focus
@@ -33,13 +33,14 @@ class Datamanage :
         
         if self.setting_time < self.distance_time : 
             self.data_append()
-            print(self.data)
             self.preview_time = self.current_time
+            print(self.data)
         else : pass
     
+
     def data_append(self):
         self.data['real_time'].append(self.current_time)
-        # self.data['video_time'].append(self.video_time)
+        self.data['video_time'].append(self.video_time)
         self.data['focus_prob'].append(self.focus_prob)
         
         # self.data['focus'].append(self.focus)

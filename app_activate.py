@@ -12,7 +12,7 @@ streamcam = Streamer()
 focus_notice = focus_notice_player()
 
 global video_time
-
+video_time = 0
 # 0. 필요한 변수들 선언
 focus_result = streamcam.focus_prob
 test = '시발'
@@ -191,6 +191,7 @@ def generate_notice(*args):
     if focus_notice.generate_section_TF == False:
         focus_notice.generate_section(args[0])
         focus_notice.generate_section_TF = True
+        print(focus_notice.sections_check)
 
     else:
         return focus_notice.sections_timeline[ctx.triggered_id]
@@ -216,10 +217,15 @@ def stream_gen( src ):
             # yield (b'--frame\r\n'
             #       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
             
-            # 2. 깆고온 frame 으로 집중도 추출
+            # 2. 깆고온 frame 으로 집중도 추출 및 현재시간과 영상시청 시간 기록
             datamanage.current_time, datamanage.focus_prob = streamcam.focus_result()
-            # datamanage.video_time = video_time
+            datamanage.video_time = video_time
             datamanage.start()
+
+            # 3. 데이터와 데미지 확인을 위한
+            
+
+
 
             ## 여기다가, 프레임을 넣어주는 기능을 작성할 것 
                     
