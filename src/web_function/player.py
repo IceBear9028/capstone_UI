@@ -38,7 +38,10 @@ class focus_notice_player:
         # 생성된 element의 id와 time을 저장하는 리스트
         self.sections_timeline = {}
 
-        self.sections_check = {}
+        self.sections_check = {
+            'time' : {},
+            'prob' : {}
+        }
 
         # marge_elements_Input : dash에 callback으로 넣을 Input객체를 리스트형태로 모았음.
         self.marge_sections_Input = [Input('{0}_btn'.format(i), 'n_clicks') for i in range(self.section_num)]
@@ -57,16 +60,15 @@ class focus_notice_player:
             self.sections_timeline['{0}_btn'.format(i)] = self.section_time * i
 
             # section_check : 각 섹션 내의 초단위로 수업을 들은 여부를 체크하는 딕셔너리
-            self.sections_check['{0}_btn'.format(i)] = {}
-            for j in range((i*self.section_time),(i+1)*self.section_time):
-                self.sections_check['{0}_btn'.format(i)]['{0}'.format(j)] = {}
-                self.sections_check['{0}_btn'.format(i)]['{0}'.format(j)]['TF'] = False
-                self.sections_check['{0}_btn'.format(i)]['{0}'.format(j)]['prob'] = None
+            self.sections_check['time']['{0}_btn'.format(i)] = None
+            self.sections_check['prob']['{0}_btn'.format(i)] = None
+
 
     # section_check가 모두 True가 되었을 때, 각 section 에 대한 prob의 평균값 추출
     # def section_mean_focus_prob(self, id):
     #     if self.sections_check['{0}_btn'.format(id)].get('')
-        
+    
+    # 
 
 
 
