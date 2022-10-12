@@ -1,4 +1,5 @@
 from dash import html, Input, State
+import time
 
 class focus_notice_player:
     def __init__(self):
@@ -68,14 +69,22 @@ class focus_notice_player:
     # def section_mean_focus_prob(self, id):
     #     if self.sections_check['{0}_btn'.format(id)].get('')
     
-    # 
 
+    # 동영상 시청시간을 측정해주는 함수
+    def watching_time(self, start_signal, end_signal):
+        if start_signal:
+            start = time.time()
+            if end_signal:
+                end = time.time()
+        watching_time = int(end-start)
+        return watching_time
 
+    # 추루에 동영상 시청시간을 확인하였으면, 이를 time 딕셔너리에 저장하는 함수 만들기
 
 
     # 한 프레임에 대한 실시간 video시간과 집중도 prob를 알려줌
-    def realtime_data_activate(self, prob, video_time):
-        return [prob, video_time]
+    # def realtime_data_activate(self, prob, video_time):
+    #     return [prob, video_time]
 
     # 시간초가 들어오고, 어디 구간인지 알려주는 함수
     def find_section_id(self, num):
