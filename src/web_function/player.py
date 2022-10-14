@@ -1,4 +1,4 @@
-from dash import html, Input, State
+from dash import html, Input
 import time
 
 class focus_notice_player:
@@ -24,7 +24,12 @@ class focus_notice_player:
         # video_length : 학습동영상의 길이
         self.video_length = 0
 
-        # elements : 각 집중구간블록이 담긴 어레이
+        # current_video_section : 비디오 색션 확인을 위한 용도
+        # -> section_stored 함수에서, 이전 섹션과 이후 섹션 확인하기 위함.\
+        self.current_video_section = None
+
+
+        # sections : 각 집중구간블록이 담긴 어레이
         # 어레이 형태로 묶어야 html 에서 한번에 랜더링된다.
         self.sections = [
             html.Div(
@@ -32,6 +37,12 @@ class focus_notice_player:
                 children = [html.H3('{0}'.format(i))],
                 style = self.section_style,
                 n_clicks = 0) for i in range(self.section_num)]
+
+        self.start_time = None
+        self.end_time = None
+        self.watching_time = None
+
+        self.video_section = None
 
 
         self.sections_id = []
@@ -46,7 +57,10 @@ class focus_notice_player:
 
         # marge_elements_Input : dash에 callback으로 넣을 Input객체를 리스트형태로 모았음.
         self.marge_sections_Input = [Input('{0}_btn'.format(i), 'n_clicks') for i in range(self.section_num)]
+        
+        #self.marge_sections_Input.insert(0,Input('interval', 'n_intervals'))
         self.marge_sections_Input.insert(0,Input('video_player', 'duration'))
+        
 
         self.generate_section_TF = False
 
@@ -61,8 +75,8 @@ class focus_notice_player:
             self.sections_timeline['{0}_btn'.format(i)] = self.section_time * i
 
             # section_check : 각 섹션 내의 초단위로 수업을 들은 여부를 체크하는 딕셔너리
-            self.sections_check['time']['{0}_btn'.format(i)] = None
-            self.sections_check['prob']['{0}_btn'.format(i)] = None
+            self.sections_check['time']['{0}_btn'.format(i)] = 0
+            self.sections_check['prob']['{0}_btn'.format(i)] = 0
 
 
     # section_check가 모두 True가 되었을 때, 각 section 에 대한 prob의 평균값 추출
@@ -71,13 +85,31 @@ class focus_notice_player:
     
 
     # 동영상 시청시간을 측정해주는 함수
-    def watching_time(self, start_signal, end_signal):
-        if start_signal:
-            start = time.time()
-            if end_signal:
-                end = time.time()
-        watching_time = int(end-start)
-        return watching_time
+    # def watching_time(self, start_signal, end_signal):
+    #     if start_signal:
+    #         start = time.time()
+    #         if end_signal:
+    #             end = time.time()
+    #     watching_time = int(end-start)
+    #     return watching_time
+    
+    def cal_watching_time(self, on_off):
+        if on_off == 'start':
+            self.start_time = time.time()
+        
+        elif on_off == 'end':
+            self.end_time = time.time()
+            self.watching_time = int(self.end_time - self.start_time)   
+
+    
+
+    # datamanage.data 에서 동영상시간,확률을 받는다.
+    def get_time_prob(self, time_list, prob_list):
+        time = time_list[len(time_list)-1]
+        prob = prob_list[len(prob_list)-1]
+
+        return time,prob
+
 
     # 추루에 동영상 시청시간을 확인하였으면, 이를 time 딕셔너리에 저장하는 함수 만들기
 
@@ -93,12 +125,35 @@ class focus_notice_player:
                 if j == num:
                     return '{0}_btn'.format(i)
     
-    # 영상시간과 확률을 받으면, 이를 section_check 딕션너리에 업데이트
-    def section_confirm(self, prob, time):
-        video_watch_section = self.find_section_id(time)
 
-        self.sections_check[video_watch_section]['{0}'.format(time)]['TF'] = True
-        self.sections_check[video_watch_section]['{0}'.format(time)]['prob'] = prob
+
+    # 영상시간과 확률을 받으면, 이를 section_check 딕션너리에 업데이트
+    def section_stored(self, time_list, prob_list):
+        time, prob = self.get_time_prob(time_list, prob_list)
+        
+        # 만약 이전 비디오시간과 이후 비디오 
+        if self.video_section != self.find_section_id(time):
+            self.cal_watching_time('end')
+            self.sections_check['time'][self.video_section] += self.watching_time
+            self.video_section = self.find_section_id(time)
+
+            self.cal_watching_time('start')
+        else:
+            pass
+            # self.cal_watching_time('end')
+            # self.sections_check['time'][self.video_section] += self.watching_time
+            # self.video_section = self.find_section_id(time)
+            
+
+
+
+        
+
+
+
+        
+        
+        
 
 
 

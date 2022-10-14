@@ -4,9 +4,9 @@ from turtle import distance
 class Datamanage :
     def __init__(self):
         self.data = {
-            'real_time' : [],
-            'focus_prob' : [],
-            'video_time' : [],
+            'real_time' : [0,],
+            'focus_prob' : [0,],
+            'video_time' : [0,],
         }
         # 시간 초기값 설정
         self.setting_time = 5 * 10^5

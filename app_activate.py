@@ -4,10 +4,10 @@ from dash import Dash, dcc, html, Input, Output, State,ctx
 from dash.exceptions import PreventUpdate
 from flask import Flask, Response, request, stream_with_context
 from src.model_api.streamer import Streamer
-from src.datastroage.data_api import Datamanage
+from src.datastroage.graph_data import Datamanage
 from src.web_function.player import focus_notice_player
 
-datamanage = Datamanage()
+graph_datamanage = Datamanage()
 streamcam = Streamer()
 focus_notice = focus_notice_player()
 
@@ -59,7 +59,8 @@ app.layout = html.Div(
                     # 도움받은 사이트 :
                     # https://community.plotly.com/t/dash-player-custom-component-playing-and-controlling-your-videos-with-dash/12349
                     id = video_player,
-                    url = "assets/test_Video/JSON프론트엔드2.mp4",
+                    # url = "assets/test_Video/JSON프론트엔드2.mp4",
+                    url = "assets/test_Video/뉴진스(NewJeans)'Attention'.mp4",
                     controls = True,
                 ),
                 dcc.Checklist(
@@ -134,8 +135,8 @@ def focus_1(num):
     fig['layout']['legend'] = {'x': 0, 'y': 1, 'xanchor': 'left'}
 
     fig.append_trace({
-        'x' : datamanage.data['real_time'],
-        'y' : datamanage.data['focus_prob'],
+        'x' : graph_datamanage.data['real_time'],
+        'y' : graph_datamanage.data['focus_prob'],
         'name' : 'focus',
         'type' : 'scatter'
     },1,1)
@@ -160,14 +161,6 @@ def test_nClicks(n):
 
 
 # 현재 playtime 을 확인하는 기능.
-@app.callback(
-    Output('video_currentTime', 'children'),
-    Input(video_player, 'currentTime')
-)
-def current_time_check(value):
-    global video_time
-    video_time = int(value)
-    return [html.Span(value)]
 
 
 #현재의 집중도를 확인하는 기능
@@ -176,7 +169,7 @@ def current_time_check(value):
     Input(interval, 'n_intervals')
 )
 def focus_check(n):
-    focus = datamanage.data['focus_prob']
+    focus = graph_datamanage.data['focus_prob']
     return [html.H1(str(focus[-1]))]
 
 
@@ -188,14 +181,40 @@ def focus_check(n):
 def generate_notice(*args):
     # duration값을 한번만 받으면 더이상 받을 필요가 없음
     # 따라서 generate_section_TF가 한번만 실행시켜주는 역할을 한다.
+
+    # if focus_notice.sections_check['time'][ctx.triggered_id] == None:
+
+    # sections_timeline 딕셔너리를 만들기 위한 코드.
+    # 한번만 실행하면 되기 때문에 TF 변수에 스위치 역할을 구현한 것.
     if focus_notice.generate_section_TF == False:
         focus_notice.generate_section(args[0])
         focus_notice.generate_section_TF = True
-        print(focus_notice.sections_check)
 
     else:
+        # focus_notice.section_stored(graph_datamanage.data['video_time'],graph_datamanage.data['focus_prob'])
+        # print(focus_notice.sections_check)
         return focus_notice.sections_timeline[ctx.triggered_id]
 
+
+# focus_notice_player 의 클래스 
+# @app.callback(
+#     Output('video_currentTime', 'children'),
+#     Input(video_player, 'currentTime'),
+# )
+# def data_stored(time):
+#     focus_notice.section_stored(graph_datamanage.data['video_time'],graph_datamanage.data['focus_prob'])
+#     print(focus_notice.sections_check)
+#     return html.H1(str(time))
+
+@app.callback(
+    Output('video_currentTime', 'children'),
+    Input(video_player, 'currentTime')
+)
+def current_time_check(value):
+    global video_time
+    video_time = int(value)
+    focus_notice.section_stored(graph_datamanage.data['video_time'],graph_datamanage.data['focus_prob'])
+    return [html.Span(value)]
 
 # 5. 웹캠 연결용 서버
 @server.route('/video')
@@ -218,9 +237,9 @@ def stream_gen( src ):
             #       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
             
             # 2. 깆고온 frame 으로 집중도 추출 및 현재시간과 영상시청 시간 기록
-            datamanage.current_time, datamanage.focus_prob = streamcam.focus_result()
-            datamanage.video_time = video_time
-            datamanage.start()
+            graph_datamanage.current_time, graph_datamanage.focus_prob = streamcam.focus_result()
+            graph_datamanage.video_time = video_time
+            graph_datamanage.start()
 
             # 3. 데이터와 데미지 확인을 위한
             

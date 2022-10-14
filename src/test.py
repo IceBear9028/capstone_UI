@@ -48,3 +48,5 @@ for i in range(10):
     print('i = {0}'.format(i))
     for j in range(i*n, 2*(i+1)*n):
         print(j)
+
+print(int(10/3))
