@@ -99,6 +99,8 @@ class focus_notice_player:
         
         elif on_off == 'end':
             self.end_time = time.time()
+        
+        elif on_off == 'cal':
             self.watching_time = int(self.end_time - self.start_time)   
 
     
@@ -133,10 +135,24 @@ class focus_notice_player:
         
         # 만약 이전 비디오시간과 이후 비디오 
         if self.video_section != self.find_section_id(time):
-            self.cal_watching_time('end')
-            self.sections_check['time'][self.video_section] += self.watching_time
+            # 먼저,이전의 self_video_section 값울 현재로 교환
             self.video_section = self.find_section_id(time)
 
+            # 그리고 시청시간 결과를 추출
+            self.cal_watching_time('end')
+
+            try:
+                # start_time 값이 존재하는 경우 == cal_watching_time 이 재대로 실행되는 경우
+                self.cal_watching_time('cal')
+                self.sections_check['time'][self.video_section] += self.watching_time
+            except:
+                # start_time 값이 없는 경우 == cal_watching_time 값이 없는경우
+                self.sections_check['time'][self.video_section] += 0
+
+            # 실험용으로, 섹션마다 prob 값을 평균이아닌, 즉각적인 값으로 넣기
+            self.sections_check['prob'][self.video_section] = prob
+
+            # 마지막으로 시청시간을 다시 측정한다.
             self.cal_watching_time('start')
         else:
             pass

@@ -214,6 +214,7 @@ def current_time_check(value):
     global video_time
     video_time = int(value)
     focus_notice.section_stored(graph_datamanage.data['video_time'],graph_datamanage.data['focus_prob'])
+    print(focus_notice.sections_check)
     return [html.Span(value)]
 
 # 5. 웹캠 연결용 서버
