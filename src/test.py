@@ -50,3 +50,18 @@ for i in range(10):
         print(j)
 
 print(int(10/3))
+
+
+import numpy as np
+
+nu = np.array([])
+for i in range(10):
+    nu = np.insert(nu,0,int(i))
+
+print(nu)
+print(str(np.mean(nu)),np.mean(nu))
+if np.mean(nu) < 4:
+    print('맞음')
+
+print(np.mean(np.array([])))
+print(type(np.mean(np.array([]))))

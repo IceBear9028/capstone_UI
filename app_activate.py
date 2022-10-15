@@ -196,26 +196,32 @@ def generate_notice(*args):
         return focus_notice.sections_timeline[ctx.triggered_id]
 
 
-# focus_notice_player 의 클래스 
-# @app.callback(
-#     Output('video_currentTime', 'children'),
-#     Input(video_player, 'currentTime'),
-# )
-# def data_stored(time):
-#     focus_notice.section_stored(graph_datamanage.data['video_time'],graph_datamanage.data['focus_prob'])
-#     print(focus_notice.sections_check)
-#     return html.H1(str(time))
-
+# section_time 저장 기능 원본
 @app.callback(
     Output('video_currentTime', 'children'),
-    Input(video_player, 'currentTime')
+    Input(interval, 'n_intervals')
 )
 def current_time_check(value):
     global video_time
     video_time = int(value)
     focus_notice.section_stored(graph_datamanage.data['video_time'],graph_datamanage.data['focus_prob'])
+    focus_notice.result_section_state()
     print(focus_notice.sections_check)
     return [html.Span(value)]
+
+# section_time 저장 및 html.Div 조장 함수
+# -> 현재 수정중!
+
+# @app.callback(
+#     focus_notice.marge_sections_Output,
+#     Input(video_player, 'currentTime')
+# )
+# def current_time_check(value):
+#     global video_time
+#     video_time = int(value)
+#     focus_notice.section_stored(graph_datamanage.data['video_time'],graph_datamanage.data['focus_prob'])
+#     print(focus_notice.sections_check)
+#     return [html.Span(value)]
 
 # 5. 웹캠 연결용 서버
 @server.route('/video')

@@ -29,12 +29,10 @@ class Datamanage :
     def start(self):
         self.distance_time = self.current_time - self.preview_time
         self.distance_time = int(self.distance_time.total_seconds() * (10**6))
-        print(self.distance_time)
         
         if self.setting_time < self.distance_time : 
             self.data_append()
             self.preview_time = self.current_time
-            print(self.data)
         else : pass
     
 

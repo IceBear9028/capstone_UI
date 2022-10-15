@@ -1,5 +1,6 @@
-from dash import html, Input
+from dash import html, Input, Output
 import time
+import numpy as np
 
 class focus_notice_player:
     def __init__(self):
@@ -50,23 +51,32 @@ class focus_notice_player:
         # 생성된 element의 id와 time을 저장하는 리스트
         self.sections_timeline = {}
 
+        # 구간별 동영상 시청시간, 구간 내의 초당 집중도, 최종 구간의 집중
         self.sections_check = {
             'time' : {},
-            'prob' : {}
+            'prob' : {},
+            'section_state' : {}
         }
+        # time : section 별 동영상 시청시간
+        # prob : section 내 초당 집중도
+        # section_state : 동영상 구간 당 상태를 저장
+        #   -> 0 : section에서의 학습을 한번도 안한 상태
+        #   -> 1 : section에서의 학습이 완료되지 않은 상태
+        #   -> 2 : section에서의 학습완료, 하지만 집중도가 낮음.
+        #   -> 3 : section에서의 학습완료, 집중도 충분함.
 
-        # marge_elements_Input : dash에 callback으로 넣을 Input객체를 리스트형태로 모았음.
+        # marge_elements_Input : dash에 callback으로 넣을 Input객체를 리스트 형태로 저장
         self.marge_sections_Input = [Input('{0}_btn'.format(i), 'n_clicks') for i in range(self.section_num)]
-        
-        #self.marge_sections_Input.insert(0,Input('interval', 'n_intervals'))
         self.marge_sections_Input.insert(0,Input('video_player', 'duration'))
-        
+
+        # marge_sections_Output : dash 에 callback으로 넣을 Output 객체를 리스트 형태로 저장
+        self.marge_sections_Output = [Output('{0}_btn'.format(i), 'style') for i in range(self.section_num)]        
 
         self.generate_section_TF = False
 
-    # 이전 함수이름 : cal_element_num(self, video_length)
 
     # generate_element 함수 실행하면 div가 생성된다.
+    # 이 함수는 한번만 실행한다(초기값들을 설정하기 위한 함수).
     def generate_section(self, video_length):
         self.section_time = int(video_length /self.section_num);
 
@@ -76,7 +86,8 @@ class focus_notice_player:
 
             # section_check : 각 섹션 내의 초단위로 수업을 들은 여부를 체크하는 딕셔너리
             self.sections_check['time']['{0}_btn'.format(i)] = 0
-            self.sections_check['prob']['{0}_btn'.format(i)] = 0
+            self.sections_check['prob']['{0}_btn'.format(i)] = [np.array([])]
+            self.sections_check['section_state']['{0}_btn'.format(i)] = 0
 
 
     # section_check가 모두 True가 되었을 때, 각 section 에 대한 prob의 평균값 추출
@@ -93,6 +104,10 @@ class focus_notice_player:
     #     watching_time = int(end-start)
     #     return watching_time
     
+
+
+
+    # section 당 시청한 시간을 계산한다.
     def cal_watching_time(self, on_off):
         if on_off == 'start':
             self.start_time = time.time()
@@ -102,7 +117,6 @@ class focus_notice_player:
         
         elif on_off == 'cal':
             self.watching_time = int(self.end_time - self.start_time)   
-
     
 
     # datamanage.data 에서 동영상시간,확률을 받는다.
@@ -113,13 +127,6 @@ class focus_notice_player:
         return time,prob
 
 
-    # 추루에 동영상 시청시간을 확인하였으면, 이를 time 딕셔너리에 저장하는 함수 만들기
-
-
-    # 한 프레임에 대한 실시간 video시간과 집중도 prob를 알려줌
-    # def realtime_data_activate(self, prob, video_time):
-    #     return [prob, video_time]
-
     # 시간초가 들어오고, 어디 구간인지 알려주는 함수
     def find_section_id(self, num):
         for i in range(self.section_num):
@@ -127,38 +134,75 @@ class focus_notice_player:
                 if j == num:
                     return '{0}_btn'.format(i)
     
-
+    # prob 값이 들어오면, 평균으로 계산해주는 함수
 
     # 영상시간과 확률을 받으면, 이를 section_check 딕션너리에 업데이트
     def section_stored(self, time_list, prob_list):
         time, prob = self.get_time_prob(time_list, prob_list)
         
-        # 만약 이전 비디오시간과 이후 비디오 
+        # 비디오 section 이 바뀌는 경우
         if self.video_section != self.find_section_id(time):
-            # 먼저,이전의 self_video_section 값울 현재로 교환
-            self.video_section = self.find_section_id(time)
+            # 1. 처음 웹페이지를 열었을 때.
+            if self.video_section == None:
+                # 초기 video_section 값이 None 인 경우는 처음 페이지를 열었을 때 밖에 없다.
+                # 따라서 초기 한번만 실행되고 이후에는 사용되지 않는다.
 
-            # 그리고 시청시간 결과를 추출
-            self.cal_watching_time('end')
+                # 처음 video_section 값을 지정해준다.
+                self.video_section = '0_btn'
 
-            try:
-                # start_time 값이 존재하는 경우 == cal_watching_time 이 재대로 실행되는 경우
+                # 그리고 시간 측정을 시작한다.
+                self.cal_watching_time('start')
+            
+
+            # 2. 이후 플레이어가 계속해서 돌아가는 경우.
+            else:
+                # 시간 기록을 정지한다.
+                self.cal_watching_time('end')
+
+                # 시청시간을 최종적으로 계산한다.
                 self.cal_watching_time('cal')
+
+                # 이전에 저장되어 있던 watching_time 값을 더해서 section 간 최종 시청한 시간을 저장한다.
                 self.sections_check['time'][self.video_section] += self.watching_time
-            except:
-                # start_time 값이 없는 경우 == cal_watching_time 값이 없는경우
-                self.sections_check['time'][self.video_section] += 0
 
-            # 실험용으로, 섹션마다 prob 값을 평균이아닌, 즉각적인 값으로 넣기
-            self.sections_check['prob'][self.video_section] = prob
+                # 실험용으로, 섹션마다 prob 값을 평균이아닌, 즉각적인 값으로 넣기
+                # self.sections_check['prob'][self.video_section] = prob
 
-            # 마지막으로 시청시간을 다시 측정한다.
-            self.cal_watching_time('start')
+                # 시청시간을 다시 기록한다.
+                self.cal_watching_time('start')
+
+                # 마지막으로,이전의 self_video_section 값울 현재 section 저장
+                self.video_section = self.find_section_id(time)
+
+        # 비디오 section 이 동일한 경우
         else:
-            pass
+            self.sections_check['prob'][self.video_section] = np.insert(self.sections_check['prob'][self.video_section], 0, round(prob, 3))
             # self.cal_watching_time('end')
             # self.sections_check['time'][self.video_section] += self.watching_time
             # self.video_section = self.find_section_id(time)
+        
+
+    # section 의 state를 return 하는 함수
+    def result_section_state(self):
+        for section_id, value_time in self.sections_check['time'].items():
+            # A. section 당 학습시간이 부족한 경우
+            if value_time == 0:
+                self.sections_check['section_state'][section_id] = 0
+
+            elif (self.section_time - 1) > value_time: 
+                self.sections_check['section_state'][section_id] = 1
+
+            # B. section 당 학습시간이 충분한 경우
+            else:
+                for value_prob in self.sections_check['prob'].values():
+                    mean = np.mean(value_prob)
+                    # section 의 집중확률이 낮은경우
+                    if mean < 0.5:
+                        self.sections_check['section_state'][section_id] = 2
+                    # section 의 집중확률이 높은경우
+                    else:
+                        self.sections_check['section_state'][section_id] = 3
+                    
             
 
 
