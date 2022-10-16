@@ -1,8 +1,8 @@
 import plotly
+import numpy as np
 from dash_player import DashPlayer
-from dash import Dash, dcc, html, Input, Output, State,ctx
-from dash.exceptions import PreventUpdate
-from flask import Flask, Response, request, stream_with_context
+from dash import Dash, dcc, html, Input, Output,ctx
+from flask import Flask, Response, request
 from src.model_api.streamer import Streamer
 from src.datastroage.graph_data import Datamanage
 from src.web_function.player import focus_notice_player
@@ -15,7 +15,6 @@ global video_time
 video_time = 0
 # 0. 필요한 변수들 선언
 focus_result = streamcam.focus_prob
-test = '시발'
 # -> 사용자의 집중도 결과를 저장 ()
 
 
@@ -26,8 +25,6 @@ test = '시발'
 graph_id_1 = 'focus1'
 graph_id_2 = 'focus2'
 frame = 'webcam_frame'
-
-
 focus_marking_player = 'focus_marking_player'
 interval = 'interval'
 video_player = 'video_player'
@@ -48,13 +45,6 @@ app.layout = html.Div(
                     id = 'video_currentTime',
                     children = []
                 ),
-                html.Div(
-                    id = 'videoFunction',
-                    children = [
-                        html.Button('앞으로5초', id = 'videoForward'),
-                        html.Button('뒤로5초', id = 'videoBackward')
-                    ]
-                ),
                 DashPlayer(
                     # 도움받은 사이트 :
                     # https://community.plotly.com/t/dash-player-custom-component-playing-and-controlling-your-videos-with-dash/12349
@@ -62,12 +52,6 @@ app.layout = html.Div(
                     # url = "assets/test_Video/JSON프론트엔드2.mp4",
                     url = "assets/test_Video/뉴진스(NewJeans)'Attention'.mp4",
                     controls = True,
-                ),
-                dcc.Checklist(
-                    id = 'test_check',
-                    options = [
-                        {"label" : "playing", "value" : "playing"},
-                    ]
                 ),
                 html.Div(
                     id = focus_marking_player,
@@ -83,14 +67,6 @@ app.layout = html.Div(
                         }
                 )
             ]
-        ),
-        html.Div(
-            id = 'test',
-            style = {
-                'background' : '#030303',
-                'width' : '500px',
-                'height' : '200px'
-            }
         ),
         html.Div(
             className = 'graphContainer',
@@ -121,8 +97,6 @@ app.layout = html.Div(
         )
     ]
 )
-# 참고할 웹사이트
-# http://wandlab.com/blog/?p=94
 
 
 # 4. 그래프 속성 설정
@@ -142,26 +116,6 @@ def focus_1(num):
     },1,1)
     return fig
 
-# test 체크리스트 -> play, pause
-@app.callback(
-    Output(video_player, 'playing'),
-    Input('test_check', 'value')
-)
-def play_pause_function(value):
-    return "playing" in value
-
-
-# test div의 n_clicks 기능 test
-@app.callback(
-    Output('test', 'children'),
-    Input('test', 'n_clicks')
-)
-def test_nClicks(n):
-    return(html.H3(str(n)))
-
-
-# 현재 playtime 을 확인하는 기능.
-
 
 #현재의 집중도를 확인하는 기능
 @app.callback(
@@ -173,17 +127,12 @@ def focus_check(n):
     return [html.H1(str(focus[-1]))]
 
 
-### focus_notice_player 클래스 기능구현
+# focus_notice_player 클래스 기능구현
 @app.callback(
     Output(video_player, 'seekTo'),
     focus_notice.marge_sections_Input
 )
 def generate_notice(*args):
-    # duration값을 한번만 받으면 더이상 받을 필요가 없음
-    # 따라서 generate_section_TF가 한번만 실행시켜주는 역할을 한다.
-
-    # if focus_notice.sections_check['time'][ctx.triggered_id] == None:
-
     # sections_timeline 딕셔너리를 만들기 위한 코드.
     # 한번만 실행하면 되기 때문에 TF 변수에 스위치 역할을 구현한 것.
     if focus_notice.generate_section_TF == False:
@@ -191,37 +140,40 @@ def generate_notice(*args):
         focus_notice.generate_section_TF = True
 
     else:
-        # focus_notice.section_stored(graph_datamanage.data['video_time'],graph_datamanage.data['focus_prob'])
-        # print(focus_notice.sections_check)
+        # 학습시간을 만족하는데, 집중도가 낮아서 재학습을 해야 하는경우
+        if focus_notice.sections_check['section_state'] == 2 or focus_notice.sections_check['section_state'] == 3 :
+            # 기존 학습한 기록을 리셋한다.
+            focus_notice.sections_check['time'][ctx.triggered_id] = 0
+            focus_notice.sections_check['prob'][ctx.triggered_id] = np.array([])
+
         return focus_notice.sections_timeline[ctx.triggered_id]
 
 
-# section_time 저장 기능 원본
+# section_time 저장 기능
 @app.callback(
     Output('video_currentTime', 'children'),
+    Input(interval, 'n_intervals'),
+    Input(video_player, 'currentTime')
+)
+def current_time_check(n, current_time):
+    global video_time
+    video_time = int(current_time)
+    focus_notice.section_stored(graph_datamanage.data['video_time'],graph_datamanage.data['focus_prob'])
+    focus_notice.save_section_state()
+    print(focus_notice.sections_check)
+    return [html.Span(n)]
+
+# sections_state값에 따른 section 의 style 변경
+@app.callback(
+    focus_notice.marge_sections_Output,
     Input(interval, 'n_intervals')
 )
-def current_time_check(value):
-    global video_time
-    video_time = int(value)
-    focus_notice.section_stored(graph_datamanage.data['video_time'],graph_datamanage.data['focus_prob'])
-    focus_notice.result_section_state()
-    print(focus_notice.sections_check)
-    return [html.Span(value)]
+def update_section(interval):
+    style_list = []
+    for state_value in focus_notice.sections_check['section_state'].values():
+        style_list.append(focus_notice.set_section_style(state_value))
+    return style_list
 
-# section_time 저장 및 html.Div 조장 함수
-# -> 현재 수정중!
-
-# @app.callback(
-#     focus_notice.marge_sections_Output,
-#     Input(video_player, 'currentTime')
-# )
-# def current_time_check(value):
-#     global video_time
-#     video_time = int(value)
-#     focus_notice.section_stored(graph_datamanage.data['video_time'],graph_datamanage.data['focus_prob'])
-#     print(focus_notice.sections_check)
-#     return [html.Span(value)]
 
 # 5. 웹캠 연결용 서버
 @server.route('/video')
@@ -237,9 +189,8 @@ def stream_gen( src ):
     try : 
         streamcam.run( src )
         while True :
-            
+            # 1. 갖고온 frame 으로 웹페이지에 넣어줌
             # frame = streamcam.bytescode()
-            # # 1. 갖고온 frame 으로 웹페이지에 넣어줌
             # yield (b'--frame\r\n'
             #       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
             
@@ -247,24 +198,9 @@ def stream_gen( src ):
             graph_datamanage.current_time, graph_datamanage.focus_prob = streamcam.focus_result()
             graph_datamanage.video_time = video_time
             graph_datamanage.start()
-
-            # 3. 데이터와 데미지 확인을 위한
-            
-
-
-
-            ## 여기다가, 프레임을 넣어주는 기능을 작성할 것 
                     
     except GeneratorExit :
-        #print( '[wandlab]', 'disconnected stream' )
         streamcam.stop()
-
-# @app.callback(
-#     Output(component_id = 'focus_result', component_property='children'),
-#     Input(focus_result, 'value')
-# )
-# def update_focus(input):
-#     return f'Output : {input}'
 
 
 if __name__ == '__main__':

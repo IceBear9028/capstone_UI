@@ -40,10 +40,6 @@ class Datamanage :
         self.data['real_time'].append(self.current_time)
         self.data['video_time'].append(self.video_time)
         self.data['focus_prob'].append(self.focus_prob)
-        
-        # self.data['focus'].append(self.focus)
-
-    # def data_test(self):
-    #     if
+    
 
 # 2022.10.09 오후 6시53분 -> video_time append 하는 기능 제거.

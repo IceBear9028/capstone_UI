@@ -60,8 +60,9 @@ for i in range(10):
 
 print(nu)
 print(str(np.mean(nu)),np.mean(nu))
-if np.mean(nu) < 4:
+if np.mean(nu) < 10:
     print('맞음')
 
-print(np.mean(np.array([])))
-print(type(np.mean(np.array([]))))
+
+
+

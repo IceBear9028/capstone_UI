@@ -1,6 +1,7 @@
 from dash import html, Input, Output
 import time
 import numpy as np
+import copy
 
 class focus_notice_player:
     def __init__(self):
@@ -11,8 +12,6 @@ class focus_notice_player:
         # section_time : 동영상 구간을 30개로 나누었을 때의 시간
         self.section_time = 0
 
-        self.section_color = '#000'
-
         # section_style : 집중구간블록을 css로 꾸민다.
         # section의 width 는 section_container_width의 길이에 section_num을 나눈 값
         self.section_style = {
@@ -21,6 +20,8 @@ class focus_notice_player:
             'height' : 'auto',
             'width' : '{0}px'.format(self.section_container_width/self.section_num)
         }
+        # section_color : sections_check['section_state'] 값에 따른 색 변화
+        self.section_color = ['#000', '#808080', '#f29886', '#82d1f6']
 
         # video_length : 학습동영상의 길이
         self.video_length = 0
@@ -86,26 +87,9 @@ class focus_notice_player:
 
             # section_check : 각 섹션 내의 초단위로 수업을 들은 여부를 체크하는 딕셔너리
             self.sections_check['time']['{0}_btn'.format(i)] = 0
-            self.sections_check['prob']['{0}_btn'.format(i)] = [np.array([])]
+            self.sections_check['prob']['{0}_btn'.format(i)] = np.array([])
             self.sections_check['section_state']['{0}_btn'.format(i)] = 0
-
-
-    # section_check가 모두 True가 되었을 때, 각 section 에 대한 prob의 평균값 추출
-    # def section_mean_focus_prob(self, id):
-    #     if self.sections_check['{0}_btn'.format(id)].get('')
-    
-
-    # 동영상 시청시간을 측정해주는 함수
-    # def watching_time(self, start_signal, end_signal):
-    #     if start_signal:
-    #         start = time.time()
-    #         if end_signal:
-    #             end = time.time()
-    #     watching_time = int(end-start)
-    #     return watching_time
-    
-
-
+            
 
     # section 당 시청한 시간을 계산한다.
     def cal_watching_time(self, on_off):
@@ -176,14 +160,14 @@ class focus_notice_player:
 
         # 비디오 section 이 동일한 경우
         else:
-            self.sections_check['prob'][self.video_section] = np.insert(self.sections_check['prob'][self.video_section], 0, round(prob, 3))
+            self.sections_check['prob'][self.video_section] = np.insert(self.sections_check['prob'][self.video_section], 0, int(prob*100))
             # self.cal_watching_time('end')
             # self.sections_check['time'][self.video_section] += self.watching_time
             # self.video_section = self.find_section_id(time)
         
 
     # section 의 state를 return 하는 함수
-    def result_section_state(self):
+    def save_section_state(self):
         for section_id, value_time in self.sections_check['time'].items():
             # A. section 당 학습시간이 부족한 경우
             if value_time == 0:
@@ -194,14 +178,30 @@ class focus_notice_player:
 
             # B. section 당 학습시간이 충분한 경우
             else:
-                for value_prob in self.sections_check['prob'].values():
-                    mean = np.mean(value_prob)
-                    # section 의 집중확률이 낮은경우
-                    if mean < 0.5:
-                        self.sections_check['section_state'][section_id] = 2
-                    # section 의 집중확률이 높은경우
-                    else:
-                        self.sections_check['section_state'][section_id] = 3
+                mean = np.mean(self.sections_check['prob'][section_id])
+                # section 의 집중확률이 낮은경우
+                if mean < 50:
+                    self.sections_check['section_state'][section_id] = 2
+                # section 의 집중확률이 높은경우
+                else:
+                    self.sections_check['section_state'][section_id] = 3
+
+    # section_state 값에 따라 각 section의 style 을 업데이트
+    def set_section_style(self, section_state):
+        init_style = copy.deepcopy(self.section_style)
+        if section_state == 0:
+            init_style['background'] = self.section_color[0]
+
+        elif section_state == 1:
+            init_style['background'] = self.section_color[1]
+
+        elif section_state == 2:
+            init_style['background'] = self.section_color[2]
+
+        else:
+            init_style['background'] = self.section_color[3]
+        
+        return init_style
                     
             
 

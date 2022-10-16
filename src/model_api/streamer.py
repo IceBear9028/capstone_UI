@@ -14,7 +14,8 @@ from fer import FER
 from fer.utils import draw_annotations
 from src.model_api.activate_class import model_start, off_angle, moves_ZX, fer
 
-
+# 참고할 웹사이트
+# http://wandlab.com/blog/?p=94
 
 class Streamer :
     def __init__(self):
