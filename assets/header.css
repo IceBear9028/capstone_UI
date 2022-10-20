@@ -1,0 +1,47 @@
+body{
+    display : flex;
+    justify-content : center;
+    align-items: center;
+}
+
+.container{
+    display : flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.playerContainer{
+    display : flex;
+    flex-direction : column;
+    justify-content: center; 
+    align-content: center;
+    width : 800px;
+    height : 700px;
+    border : 1px solid #808080;
+    border-radius : 10px;
+}
+
+#videoCurrentTime{
+    display : flex;
+    justify-content : center;
+}
+
+#video_player{
+    display : flex;
+    justify-content : center;
+}
+
+
+.focusResultContainer{
+    display : flex;
+    flex-direction : column;
+    justify-content: center;
+    align-content: center;
+    width : 800px;
+    height : 700px;
+    border : 1px solid red;
+    border-radius : 10px;
+}
+
+

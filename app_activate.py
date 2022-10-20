@@ -5,7 +5,7 @@ from dash import Dash, dcc, html, Input, Output,ctx
 from flask import Flask, Response, request
 from src.model_api.streamer import Streamer
 from src.datastroage.graph_data import Datamanage
-from src.web_function.player import focus_notice_player
+from src.web_function.focus_notice import focus_notice_player
 
 graph_datamanage = Datamanage()
 streamcam = Streamer()
@@ -22,12 +22,14 @@ focus_result = streamcam.focus_prob
 # 1. 데이터 프레임 불러오기
 
 # 2. 그래프 저장
-graph_id_1 = 'focus1'
-graph_id_2 = 'focus2'
+graph_figure = 'focus1'
 frame = 'webcam_frame'
 focus_marking_player = 'focus_marking_player'
 interval = 'interval'
 video_player = 'video_player'
+video_current_time = 'videoCurrentTime'
+focus_figure = 'focusFigure'
+
 
 # 3. 웹 레이아웃 설정
 server = Flask(__name__)
@@ -35,73 +37,75 @@ app = Dash(__name__, server=server)
 
 # app.scripts.config.serve_locally = True
 
+# 도움받은 사이트 :
+# https://community.plotly.com/t/dash-player-custom-component-playing-and-controlling-your-videos-with-dash/12349
+
 app.layout = html.Div(
     className = "container",
     children = [
         html.Div(
-            className = 'videoPlayer',
+            className = 'playerContainer',
             children = [
-                html.Div(
-                    id = 'video_currentTime',
-                    children = []
-                ),
-                DashPlayer(
-                    # 도움받은 사이트 :
-                    # https://community.plotly.com/t/dash-player-custom-component-playing-and-controlling-your-videos-with-dash/12349
-                    id = video_player,
-                    # url = "assets/test_Video/JSON프론트엔드2.mp4",
-                    url = "assets/test_Video/뉴진스(NewJeans)'Attention'.mp4",
-                    controls = True,
-                ),
-                html.Div(
-                    id = focus_marking_player,
-                    children = focus_notice.sections,
-                    style = {
-                        'background' : '#fff',
-                        'width' : '{0}px'.format(focus_notice.section_container_width),
-                        'height' : '150px',
-                        'border' : '1px solid red',
-                        'display' : 'flex',
-                        'flex-direction' : 'row',
-                        'justify-content' : 'flex-start'
-                        }
-                )
-            ]
-        ),
+                    html.Div(
+                        id = video_current_time,
+                        children = []
+                    ),
+                    DashPlayer(
+                        # 도움받은 사이트 :
+                        # https://community.plotly.com/t/dash-player-custom-component-playing-and-controlling-your-videos-with-dash/12349
+                        id = video_player,
+                        # url = "assets/test_Video/JSON프론트엔드2.mp4",
+                        url = "assets/test_Video/뉴진스(NewJeans)'Attention'.mp4",
+                        controls = True,
+                    ),
+                    html.Div(
+                        id = focus_marking_player,
+                        children = focus_notice.sections,
+                        style = {
+                            'background' : '#fff',
+                            'width' : '{0}px'.format(focus_notice.section_container_width),
+                            'height' : '150px',
+                            'border' : '1px solid red',
+                            'display' : 'flex',
+                            'flex-direction' : 'row',
+                            'justify-content' : 'center'
+                            }
+                    )   
+                ]
+            ),
         html.Div(
-            className = 'graphContainer',
-            children =[
-                dcc.Graph(id = graph_id_1),
+            className = 'focusResultContainer',
+            children =[    
+                dcc.Graph(id = graph_figure),
                 dcc.Interval(
                     id = interval,
                     disabled = False,
                     interval = 1*1000,
                     n_intervals= 0
-                ),          
-            ]
-        ),
-        html.Div(
-            className = "realtimeFocus",
-            children = [
-                html.Img(src = "/video")
-            ]
-        ),
-        html.Div(
-            id = 'focus',
-            children = [
+                ),
                 html.Div(
-                    id = 'realtime_focus_result',
-                    children = []
+                    className = "faceView",
+                    children = [
+                        html.Img(src = "/video")
+                    ]
+                ),
+                html.Div(
+                    id = focus_figure,
+                    children = [
+                        html.Div(
+                            id = 'realtime_focus_result',
+                            children = []
+                        )
+                    ]
                 )
             ]
-        )
+        ),
     ]
 )
 
-
 # 4. 그래프 속성 설정
 @app.callback(
-    Output(graph_id_1, 'figure'),
+    Output(graph_figure, 'figure'),
     Input(interval, 'n_intervals')
 )
 def focus_1(num):
@@ -119,7 +123,7 @@ def focus_1(num):
 
 #현재의 집중도를 확인하는 기능
 @app.callback(
-    Output('focus', 'children'),
+    Output(focus_figure, 'children'),
     Input(interval, 'n_intervals')
 )
 def focus_check(n):
@@ -151,7 +155,7 @@ def generate_notice(*args):
 
 # section_time 저장 기능
 @app.callback(
-    Output('video_currentTime', 'children'),
+    Output(video_current_time, 'children'),
     Input(interval, 'n_intervals'),
     Input(video_player, 'currentTime')
 )
