@@ -7,7 +7,7 @@ class focus_notice_player:
     def __init__(self):
         # section_num : 영상에 대한 구간 갯수
         self.section_num = 30
-        self.section_container_width = 600
+        self.section_container_width = 800
         # elements_number : 집중구간 단위 블록의 갯수
         # section_time : 동영상 구간을 30개로 나누었을 때의 시간
         self.section_time = 0
@@ -16,9 +16,9 @@ class focus_notice_player:
         # section의 width 는 section_container_width의 길이에 section_num을 나눈 값
         self.section_style = {
             'background' : '#000',
-            'border' : '1px solid red',
+            # 'border' : '1px solid red',
             'height' : 'auto',
-            'width' : '{0}px'.format(self.section_container_width/self.section_num)
+            'width' : '{0}px'.format(self.section_container_width/self.section_num),
         }
         # section_color : sections_check['section_state'] 값에 따른 색 변화
         self.section_color = ['#000', '#808080', '#f29886', '#82d1f6']

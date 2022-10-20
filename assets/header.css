@@ -20,14 +20,10 @@ body{
     height : 700px;
     border : 1px solid #808080;
     border-radius : 10px;
+    padding : 10px;
 }
 
 #videoCurrentTime{
-    display : flex;
-    justify-content : center;
-}
-
-#video_player{
     display : flex;
     justify-content : center;
 }
@@ -42,6 +38,30 @@ body{
     height : 700px;
     border : 1px solid red;
     border-radius : 10px;
+    padding : 10px;
 }
 
+.focusFigureContainer{
+    display : flex;
+    flex-direction : row;
+    justify-content : center;
+    height : 150px;
+}
 
+#currentFocusFigure{
+    display : flex;
+    border : 1px solid red;
+    width : 300px;
+    height : 130px;
+    border-radius : 10px;
+    padding : 10px;
+}
+
+#meanFocusFigure{
+    display : flex;
+    border : 1px solid slateblue;
+    width : 300px;
+    height : 130px;
+    border-radius : 10px;
+    padding : 10px;
+}

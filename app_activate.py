@@ -28,7 +28,8 @@ focus_marking_player = 'focus_marking_player'
 interval = 'interval'
 video_player = 'video_player'
 video_current_time = 'videoCurrentTime'
-focus_figure = 'focusFigure'
+current_focus_figure = 'currentFocusFigure'
+mean_focus_figure = 'meanFocusFigure'
 
 
 # 3. 웹 레이아웃 설정
@@ -47,6 +48,15 @@ app.layout = html.Div(
             className = 'playerContainer',
             children = [
                     html.Div(
+                        className = 'titleContainer',
+                        children = [
+                            html.H2(
+                                id = 'title',
+                                children = ['동영상 플레이어']
+                            )
+                        ]
+                    ),
+                    html.Div(
                         id = video_current_time,
                         children = []
                     ),
@@ -57,20 +67,35 @@ app.layout = html.Div(
                         # url = "assets/test_Video/JSON프론트엔드2.mp4",
                         url = "assets/test_Video/뉴진스(NewJeans)'Attention'.mp4",
                         controls = True,
+                        width ='800px',
+                        height = '500px',
+                        style = {
+                            'display' : 'flex',
+                            'justify-content' : 'center',
+                        }
                     ),
                     html.Div(
-                        id = focus_marking_player,
-                        children = focus_notice.sections,
-                        style = {
-                            'background' : '#fff',
-                            'width' : '{0}px'.format(focus_notice.section_container_width),
-                            'height' : '150px',
-                            'border' : '1px solid red',
-                            'display' : 'flex',
-                            'flex-direction' : 'row',
-                            'justify-content' : 'center'
-                            }
-                    )   
+                        className = 'foucsMarkingPlayerContainer',
+                        children = [
+                            html.H2(
+                                id = 'aaa',
+                                children = ['집중도저하구간 확인']
+                            ),
+                            html.Div(
+                                id = focus_marking_player,
+                                children = focus_notice.sections,
+                                style = {
+                                    'background' : '#fff',
+                                    'width' : '{0}px'.format(focus_notice.section_container_width),
+                                    'height' : '80px',
+                                    'border-radius' : '10px',
+                                    'display' : 'flex',
+                                    'flex-direction' : 'row',
+                                    'justify-content' : 'center'
+                                    }
+                            ),
+                        ]
+                    )
                 ]
             ),
         html.Div(
@@ -90,18 +115,24 @@ app.layout = html.Div(
                     ]
                 ),
                 html.Div(
-                    id = focus_figure,
+                    className = 'focusFigureContainer',
                     children = [
                         html.Div(
-                            id = 'realtime_focus_result',
+                            id = current_focus_figure,
+                            children = []
+                        ),
+                        html.Div(
+                            id = mean_focus_figure,
                             children = []
                         )
                     ]
                 )
             ]
-        ),
+        )
     ]
 )
+    
+    
 
 # 4. 그래프 속성 설정
 @app.callback(
@@ -123,7 +154,7 @@ def focus_1(num):
 
 #현재의 집중도를 확인하는 기능
 @app.callback(
-    Output(focus_figure, 'children'),
+    Output(current_focus_figure, 'children'),
     Input(interval, 'n_intervals')
 )
 def focus_check(n):
