@@ -230,7 +230,7 @@ def stream_gen( src ):
             #       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
             
             # 2. 깆고온 frame 으로 집중도 추출 및 현재시간과 영상시청 시간 기록
-            graph_datamanage.current_time, graph_datamanage.focus_prob = streamcam.focus_result()
+            graph_datamanage.current_time, graph_datamanage.focus_prob = streamcam.focus_result( mod = 'xgb')
             graph_datamanage.video_time = video_time
             graph_datamanage.start()
                     
