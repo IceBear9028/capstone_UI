@@ -9,7 +9,7 @@ from threading import Thread
 from queue import Queue
 
 import mediapipe as mp
-# import pygame
+import pygame
 from fer import FER
 from fer.utils import draw_annotations
 # 
@@ -37,7 +37,7 @@ class Streamer :
         
         # fps값 조절하는 클래스
         self.fps_prev = 0
-        self.fps_setting = 10
+        self.fps_setting = 5
         # 단위 : fps
 
         
@@ -49,8 +49,8 @@ class Streamer :
         self.detector = FER()
 
         self.passed = 0
-        # self.start = pygame.time.get_ticks()
-        self.start = datetime.datetime.now()
+        self.start = pygame.time.get_ticks()
+        # self.start = datetime.datetime.now()
 
         self.focus = 0
         self.focus_prob = 0
@@ -60,7 +60,7 @@ class Streamer :
         self.come_off = None
 
         #클래스별 집중도 평가에 사용되는 초기값 셋팅 
-        # pygame.init()
+        pygame.init()
         emot_.init()
         moves_.init()
         face_angle_.init()
@@ -229,6 +229,7 @@ class Streamer :
                 # while cap.isOpened():
                     self.current_time = datetime.datetime.now()
                     frame = self.read()
+                    print(frame)
                     if frame.any() == False :
                         print("Ignoring empty camera frame.")
                         self.capture.release()
@@ -247,16 +248,18 @@ class Streamer :
                         moving = moves_.detect(pose_results)
                         face_angle = face_angle_.detect(pose_results)
                         face_off = face_off_.detect(frame, pose_results)
+
                     except Exception as e:
-                        pass
+                        print("예외가 발생하였습니다 {0}".format(e))
+                        focus = 0
+                        self.focus_prob = 0
+                        return self.current_time, self.focus_prob
                     ########################################
-                    # self.passed = pygame.time.get_ticks() - self.start # 시간측정
-                    distance_t = datetime.datetime.now() - self.start
+                    self.passed = pygame.time.get_ticks() - self.start # 시간측정
                     
-                    self.passed = int(distance_t.total_seconds() * (10**6))
                     if self.passed > 500 : # 0.5초, 1000 == 1초
-                        # self.start = pygame.time.get_ticks()
-                        self.start = datetime.datetime.now()
+                        self.start = pygame.time.get_ticks()
+                        # self.start = datetime.datetime.now()
                         self.passed = 0
                         plus = [moving,face_angle,face_off] #탐지한 값들을 List로 합침
                         row = fer_result + plus
@@ -284,8 +287,10 @@ class Streamer :
                                 # df_to_save = pd.DataFrame()
 
                         except Exception as e:
+                            print("예외가 발생하였습니다 {0}".format(e))
                             focus = 0
                             self.focus_prob = 0
+                            return self.current_time, self.focus_prob
                             # self.current_time = datetime.datetime.now()
                     
 
