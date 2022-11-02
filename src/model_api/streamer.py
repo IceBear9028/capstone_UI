@@ -160,7 +160,7 @@ class Streamer :
                         if self.passed > 500:
                             plus = [self.moving, self.face_angle, self.come_off]
                             row = fer_result + plus
-                            start = pygame.time.get_ticks()
+                            self.start = pygame.time.get_ticks()
                             self.passed = 0
 
                             fer.init()
