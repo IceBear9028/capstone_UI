@@ -212,9 +212,12 @@ def update_section(interval):
 
 # 5. 웹캠 연결용 서버
 @server.route('/video')
+## streamer() 에서 cv2에서 강제로 프레임 제한을 걸어버리면..?
 def stream():
     src = request.args.get('src', default=0, type = int)
+    
     try :
+        print('-----------{0}------------'.format(type(src)))
         return Response(stream_gen( src ) ,
                         mimetype='multipart/x-mixed-replace; boundary=frame' )
     except Exception as e :
@@ -225,9 +228,9 @@ def stream_gen( src ):
         streamcam.run( src )
         while True :
             # 1. 갖고온 frame 으로 웹페이지에 넣어줌
-            # frame = streamcam.bytescode()
-            # yield (b'--frame\r\n'
-            #       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+            frame = streamcam.bytescode()
+            yield (b'--frame\r\n'
+                  b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
             
             # 2. 깆고온 frame 으로 집중도 추출 및 현재시간과 영상시청 시간 기록
             graph_datamanage.current_time, graph_datamanage.focus_prob = streamcam.focus_result( mod = 'xgb')
