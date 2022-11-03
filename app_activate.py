@@ -89,6 +89,8 @@ app.layout = html.Div(
                                     'width' : '{0}px'.format(focus_notice.section_container_width),
                                     'height' : '80px',
                                     'border-radius' : '10px',
+                                    'border' : '1px solid #D0D2D8',
+                                    'padding' : '7px',
                                     'display' : 'flex',
                                     'flex-direction' : 'row',
                                     'justify-content' : 'center'
@@ -105,34 +107,49 @@ app.layout = html.Div(
                 dcc.Interval(
                     id = interval,
                     disabled = False,
-                    interval = 1*1000,
+                    interval = 1*500,
                     n_intervals= 0
                 ),
                 html.Div(
-                    className = "faceView",
+                    className = "focusProbView",
                     children = [
-                        html.Img(src = "/video")
-                    ]
-                ),
-                html.Div(
-                    className = 'focusFigureContainer',
-                    children = [
-                        html.Div(
-                            id = current_focus_figure,
-                            children = []
+                        html.Img(
+                            src = "/video",
+                            id = "facePhoto",
+                            style = {
+                                'border' : '1px solid #ddd',
+                                "border-radius" : '10px',
+                                'padding' : '5px',
+                                'width' : '200px'
+                            }
                         ),
                         html.Div(
-                            id = mean_focus_figure,
-                            children = []
-                        )
-                    ]
-                )
-            ]
+                            className = 'focusFigureContainer',
+                            children = [
+                                html.Div(
+                                    id = current_focus_figure,
+                                    children = []
+                                ),
+                                html.Div(
+                                    id = mean_focus_figure,
+                                    children = []
+                                )
+                            ]
+                        ),
+                    ],
+                ),
+            ],
         )
     ]
 )
     
-    
+# 동영상 프로그레시브 바 추가
+
+# 그린 -> 집중
+# 레드 -> 비집중
+# 옐로우 -> 진행중 
+
+# 그래프 뜨는것, 구간별로 확인
 
 # 4. 그래프 속성 설정
 @app.callback(
@@ -149,7 +166,10 @@ def focus_1(num):
         'name' : 'focus',
         'type' : 'scatter'
     },1,1)
+    fig.update_yaxes(range = [-0.1,1.1])
+
     return fig
+
 
 
 #현재의 집중도를 확인하는 기능
@@ -159,13 +179,13 @@ def focus_1(num):
 )
 def focus_check(n):
     focus = graph_datamanage.data['focus_prob']
-    return [html.H1(str(focus[-1]))]
+    return [html.H1(str(round(focus[-1], 3)))]
 
 
 # focus_notice_player 클래스 기능구현
 @app.callback(
     Output(video_player, 'seekTo'),
-    focus_notice.marge_sections_Input
+    focus_notice.marge_sections_Input,
 )
 def generate_notice(*args):
     # sections_timeline 딕셔너리를 만들기 위한 코드.
@@ -225,14 +245,15 @@ def stream_gen( src ):
         streamcam.run( src )
         while True :
             # 1. 갖고온 frame 으로 웹페이지에 넣어줌
-            # frame = streamcam.bytescode()
-            # yield (b'--frame\r\n'
-            #       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+            frame = streamcam.bytescode()
+            yield (b'--frame\r\n'
+                  b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
             
             # 2. 깆고온 frame 으로 집중도 추출 및 현재시간과 영상시청 시간 기록
             graph_datamanage.current_time, graph_datamanage.focus_prob = streamcam.focus_result()
             graph_datamanage.video_time = video_time
             graph_datamanage.start()
+            graph_datamanage.data_cut()
                     
     except GeneratorExit :
         streamcam.stop()

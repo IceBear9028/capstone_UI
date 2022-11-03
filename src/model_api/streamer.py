@@ -34,6 +34,9 @@ class Streamer :
         self.Q = Queue(maxsize = 128)
         self.started = False
 
+        self.fps_prev = 0
+        self.fps_setting = 10
+
         
         # focus_result() 함수에 사용되는 초기변수들
         self.start = model_start()
@@ -90,14 +93,21 @@ class Streamer :
             self.clear()
         
     def update(self):
-
         while True:
             if self.started :
+                # 1. capture 이용해서 frame 이미지와,
+                # 이전 프레임과 현재 프레임이 뽑혔을 때의 시간차이를 구한다.
+                time_elapsed = time.time() - self.fps_prev
                 # capture 값을 read 하면, (성공여부(bool), frame) 값을 추출한다.
                 (grabbed, frame) = self.capture.read()
+
+                # 2. 프레임의 시간차이가 설정한 fps 속도에 만족했을 때 이미지를 Q 자료형에 넣는다.
+                # -> fps 속도에 만족하지 않는 경우, 이미지 프레임은 그대로 버려진다
+                if time_elapsed > 1./self.fps_setting:
+                    self.fps_prev = time.time()
+                    if grabbed :
+                        self.Q.put(frame)
                 # grabbed(성공여부) = True 이면 Queue 자료형에 프레임을 하나씩 추가한다.
-                if grabbed :
-                    self.Q.put(frame)
                     
     def clear(self):
         with self.Q.mutex:
@@ -157,7 +167,7 @@ class Streamer :
 
                         self.passed = pygame.time.get_ticks() - self.start
 
-                        if self.passed > 500:
+                        if self.passed > 10:
                             plus = [self.moving, self.face_angle, self.come_off]
                             row = fer_result + plus
                             self.start = pygame.time.get_ticks()
@@ -176,8 +186,6 @@ class Streamer :
                                 self.current_time = datetime.datetime.now()
                                 print(self.current_time)
                                 print(self.focus_prob)
-                                #print(self.focus)
-                                #print(self.focus_prob)
 
                                 return self.current_time, self.focus_prob
                             
@@ -196,22 +204,6 @@ class Streamer :
                         return self.current_time, self.focus_prob
         # self.capture.release()
         cv2.destroyAllWindows()
-
-
-    def fps(self):
-        
-        self.current_time = time.time()
-        self.sec = self.current_time - self.preview_time
-        self.preview_time = self.current_time
-        
-        if self.sec > 0 :
-            fps = round(1/(self.sec),1)
-            
-        else :
-            fps = 1
-            
-        return fps
-
 
     def __exit__(self) :
         print( '* streamer class exit')

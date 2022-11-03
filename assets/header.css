@@ -2,6 +2,7 @@ body{
     display : flex;
     justify-content : center;
     align-items: center;
+    margin-top : 50px;
 }
 
 .container{
@@ -21,6 +22,13 @@ body{
     border : 1px solid #808080;
     border-radius : 10px;
     padding : 10px;
+}
+/* .playerContainer:hover{
+    border : 5px solid #808080;
+} */
+
+div[id~='btn']:hover{
+    border : 2px solid #808080;
 }
 
 #videoCurrentTime{
@@ -48,10 +56,16 @@ body{
     height : 150px;
 }
 
+.focusProbView{
+    display : flex;
+    flex-direction: row;
+    justify-content : center;
+}
+
 #currentFocusFigure{
     display : flex;
     border : 1px solid red;
-    width : 300px;
+    width : 170px;
     height : 130px;
     border-radius : 10px;
     padding : 10px;
@@ -60,7 +74,7 @@ body{
 #meanFocusFigure{
     display : flex;
     border : 1px solid slateblue;
-    width : 300px;
+    width : 170px;
     height : 130px;
     border-radius : 10px;
     padding : 10px;

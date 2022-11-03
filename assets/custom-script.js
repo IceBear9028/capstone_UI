@@ -11,4 +11,14 @@
 //           return;
 //         });
 // };
+window.onload = () => {
+    let first_btn = document.getElementById('btn_0');
+
+    first_btn.style.borderTopLeftRadius = 10;
+    first_btn.style.borderBottomLeftRadius = 10;
+    first_btn.style.border = '1px solid #808080';
+}
+
+
+
 

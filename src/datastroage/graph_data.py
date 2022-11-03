@@ -48,5 +48,10 @@ class Datamanage :
             'video_time' : [],
         }
     
+    def data_cut(self):
+        if len(self.data['real_time']) > 40:
+            self.data['real_time'].pop(0)
+            self.data['video_time'].pop(0)
+            self.data['focus_prob'].pop(0)
 
 # 2022.10.09 오후 6시53분 -> video_time append 하는 기능 제거.

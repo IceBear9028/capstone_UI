@@ -7,7 +7,7 @@ class focus_notice_player:
     def __init__(self):
         # section_num : 영상에 대한 구간 갯수
         self.section_num = 30
-        self.section_container_width = 800
+        self.section_container_width = 780
         # elements_number : 집중구간 단위 블록의 갯수
         # section_time : 동영상 구간을 30개로 나누었을 때의 시간
         self.section_time = 0
@@ -15,14 +15,18 @@ class focus_notice_player:
         # section_style : 집중구간블록을 css로 꾸민다.
         # section의 width 는 section_container_width의 길이에 section_num을 나눈 값
         self.section_style = {
-            'background' : '#000',
+            'display' : 'flex',
+            'justify-content' : 'center',
+            'background' : '#fff',
             # 'border' : '1px solid red',
             'height' : 'auto',
             'width' : '{0}px'.format(self.section_container_width/self.section_num),
+            'hover' : {'border' : '1px solid #a0a0a0'}
         }
         # section_color : sections_check['section_state'] 값에 따른 색 변화
-        self.section_color = ['#000', '#808080', '#f29886', '#82d1f6']
-
+        # 색 순서 -> 측정x, 학습시간부족, 집중도낮음, 집중도높음
+        # self.section_color = ['#fff', '#F7CE46', '#EA455A', '#63CA56']
+        self.section_color = ['#fff', '#D0D2D8', '#E1876B', '#A6DB76']
         # video_length : 학습동영상의 길이
         self.video_length = 0
 
@@ -35,10 +39,12 @@ class focus_notice_player:
         # 어레이 형태로 묶어야 html 에서 한번에 랜더링된다.
         self.sections = [
             html.Div(
-                id='{0}_btn'.format(i),
-                children = [html.H3('{0}'.format(i))],
+                id='btn {0}'.format(i),
+                children = [html.P('{0}'.format(i), style = {'color' : '#808080'})],
                 style = self.section_style,
-                n_clicks = 0) for i in range(self.section_num)]
+                n_clicks = 0
+            ) for i in range(self.section_num)
+        ]
 
         self.start_time = None
         self.end_time = None
@@ -67,11 +73,11 @@ class focus_notice_player:
         #   -> 3 : section에서의 학습완료, 집중도 충분함.
 
         # marge_elements_Input : dash에 callback으로 넣을 Input객체를 리스트 형태로 저장
-        self.marge_sections_Input = [Input('{0}_btn'.format(i), 'n_clicks') for i in range(self.section_num)]
+        self.marge_sections_Input = [Input('btn {0}'.format(i), 'n_clicks') for i in range(self.section_num)]
         self.marge_sections_Input.insert(0,Input('video_player', 'duration'))
 
         # marge_sections_Output : dash 에 callback으로 넣을 Output 객체를 리스트 형태로 저장
-        self.marge_sections_Output = [Output('{0}_btn'.format(i), 'style') for i in range(self.section_num)]        
+        self.marge_sections_Output = [Output('btn {0}'.format(i), 'style') for i in range(self.section_num)]        
 
         self.generate_section_TF = False
 
@@ -83,12 +89,12 @@ class focus_notice_player:
 
         for i in range(self.section_num):
             # section_timeline : 각 섹션에 대한 timeline 이 담겨져 있는 딕셔너리
-            self.sections_timeline['{0}_btn'.format(i)] = self.section_time * i
+            self.sections_timeline['btn {0}'.format(i)] = self.section_time * i
 
             # section_check : 각 섹션 내의 초단위로 수업을 들은 여부를 체크하는 딕셔너리
-            self.sections_check['time']['{0}_btn'.format(i)] = 0
-            self.sections_check['prob']['{0}_btn'.format(i)] = np.array([])
-            self.sections_check['section_state']['{0}_btn'.format(i)] = 0
+            self.sections_check['time']['btn {0}'.format(i)] = 0
+            self.sections_check['prob']['btn {0}'.format(i)] = np.array([])
+            self.sections_check['section_state']['btn {0}'.format(i)] = 0
             
 
     # section 당 시청한 시간을 계산한다.
@@ -116,7 +122,7 @@ class focus_notice_player:
         for i in range(self.section_num):
             for j in range((i*self.section_time),(i+1)*self.section_time):
                 if j == num:
-                    return '{0}_btn'.format(i)
+                    return 'btn {0}'.format(i)
     
     # prob 값이 들어오면, 평균으로 계산해주는 함수
 
@@ -132,7 +138,7 @@ class focus_notice_player:
                 # 따라서 초기 한번만 실행되고 이후에는 사용되지 않는다.
 
                 # 처음 video_section 값을 지정해준다.
-                self.video_section = '0_btn'
+                self.video_section = 'btn 0'
 
                 # 그리고 시간 측정을 시작한다.
                 self.cal_watching_time('start')
