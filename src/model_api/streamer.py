@@ -76,16 +76,13 @@ class Streamer :
             self.capture = cv2.VideoCapture(src, cv2.CAP_DSHOW)
         else :
             self.capture = cv2.VideoCapture(src)
-        
-        # 3. 프레임수를 줄인다
-        # 200 -> 200ms = 0.2 초당 1프레임 추출 => 5fps
-        #self.capture.set(cv2.CAP_PROP_POS_MSEC, 2000)
 
-        # 3. 이미지를 크기를 재조정
+
+        # 2. 이미지를 크기를 재조정
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
 
-        # 4. thread 통해서, 동시에 선언한 함수 update()를 실행
+        # 3. thread 통해서, 동시에 선언한 함수 update()를 실행
         if self.thread is None:
             self.thread = Thread(target=self.update, args = ())
             self.thread.demon = False
@@ -229,7 +226,6 @@ class Streamer :
                 # while cap.isOpened():
                     self.current_time = datetime.datetime.now()
                     frame = self.read()
-                    print(frame)
                     if frame.any() == False :
                         print("Ignoring empty camera frame.")
                         self.capture.release()
@@ -251,7 +247,7 @@ class Streamer :
 
                     except Exception as e:
                         print("예외가 발생하였습니다 {0}".format(e))
-                        focus = 0
+                        self.focus = 0
                         self.focus_prob = 0
                         return self.current_time, self.focus_prob
                     ########################################
@@ -268,27 +264,15 @@ class Streamer :
                         face_angle_.init()
                         face_off_.init()
                         try:
-                            # if how == "extract":
-                                #데이터 추출하고 저장하기
-                                # row.insert(0,name)
-                                # df_to_save = df_to_save.append([row])
-                            # if how == "valid":
-                            #     #모델로 검증하기
-                            #     X1 = np.array(row).reshape(1,-1)
-                            #     focus = self.models[mod].predict(X1)[0]
-                            #     focus_prob = self.models[mod].predict_proba(X1)[0][1]
-                                # valid_row = [name,focus, focus_prob]
-                                # df_to_save = df_to_save.append([valid_row])
-                            # else :
                             X1 = np.array(row).reshape(1,-1)
-                            focus = self.models[mod].predict(X1)[0]
+                            self.focus = self.models[mod].predict(X1)[0]
                             self.focus_prob = self.models[mod].predict_proba(X1)[0][1]
                             # self.current_time = datetime.datetime.now()
                                 # df_to_save = pd.DataFrame()
 
                         except Exception as e:
                             print("예외가 발생하였습니다 {0}".format(e))
-                            focus = 0
+                            self.focus = 0
                             self.focus_prob = 0
                             return self.current_time, self.focus_prob
                             # self.current_time = datetime.datetime.now()

@@ -105,34 +105,49 @@ app.layout = html.Div(
                 dcc.Interval(
                     id = interval,
                     disabled = False,
-                    interval = 1*1000,
+                    interval = 1*500,
                     n_intervals= 0
                 ),
                 html.Div(
                     className = "faceView",
                     children = [
-                        html.Img(src = "/video")
-                    ]
-                ),
-                html.Div(
-                    className = 'focusFigureContainer',
-                    children = [
-                        html.Div(
-                            id = current_focus_figure,
-                            children = []
+                        html.Img(
+                            src = "/video",
+                            id = "facePhoto",
+                            style = {
+                                'border' : '1px solid #ddd',
+                                "border-radius" : '10px',
+                                'padding' : '5px',
+                                'width' : '200px'
+                            }
                         ),
                         html.Div(
-                            id = mean_focus_figure,
-                            children = []
-                        )
-                    ]
-                )
-            ]
+                            className = 'focusFigureContainer',
+                            children = [
+                                html.Div(
+                                    id = current_focus_figure,
+                                    children = []
+                                ),
+                                html.Div(
+                                    id = mean_focus_figure,
+                                    children = []
+                                )
+                            ]
+                        ),
+                    ],
+                ),
+            ],
         )
     ]
 )
     
-    
+# 동영상 프로그레시브 바 추가
+
+# 그린 -> 집중
+# 레드 -> 비집중
+# 옐로우 -> 진행중 
+
+# 그래프 뜨는것, 구간별로 확인
 
 # 4. 그래프 속성 설정
 @app.callback(
@@ -149,6 +164,8 @@ def focus_1(num):
         'name' : 'focus',
         'type' : 'scatter'
     },1,1)
+    fig.update_yaxes(range = [-0.1,1.1])
+
     return fig
 
 
@@ -159,7 +176,7 @@ def focus_1(num):
 )
 def focus_check(n):
     focus = graph_datamanage.data['focus_prob']
-    return [html.H1(str(focus[-1]))]
+    return [html.H1(str(round(focus[-1],3)))]
 
 
 # focus_notice_player 클래스 기능구현
@@ -214,10 +231,8 @@ def update_section(interval):
 @server.route('/video')
 ## streamer() 에서 cv2에서 강제로 프레임 제한을 걸어버리면..?
 def stream():
-    src = request.args.get('src', default=0, type = int)
-    
+    src = request.args.get('src', default=0, type = int) 
     try :
-        print('-----------{0}------------'.format(type(src)))
         return Response(stream_gen( src ) ,
                         mimetype='multipart/x-mixed-replace; boundary=frame' )
     except Exception as e :
@@ -236,6 +251,7 @@ def stream_gen( src ):
             graph_datamanage.current_time, graph_datamanage.focus_prob = streamcam.focus_result( mod = 'xgb')
             graph_datamanage.video_time = video_time
             graph_datamanage.start()
+            graph_datamanage.cut_graph()
                     
     except GeneratorExit :
         streamcam.stop()
