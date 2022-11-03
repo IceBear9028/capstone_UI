@@ -5,7 +5,7 @@ import datetime
 
 
 def model_start():
-    with open('./src/model_api/model.pkl','rb') as f:
+    with open('./src/model_api/model_se.pkl','rb') as f:
         pickle = pkl.load(f)
     models = {'xgb' : pickle[0], 'rf' : pickle[1]}
     #return scalar, model
