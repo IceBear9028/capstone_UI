@@ -1,0 +1,67 @@
+body{
+    display : flex;
+    justify-content : center;
+    align-items: center;
+}
+
+.container{
+    display : flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.playerContainer{
+    display : flex;
+    flex-direction : column;
+    justify-content: center; 
+    align-content: center;
+    width : 800px;
+    height : 700px;
+    border : 1px solid #808080;
+    border-radius : 10px;
+    padding : 10px;
+}
+
+#videoCurrentTime{
+    display : flex;
+    justify-content : center;
+}
+
+
+.focusResultContainer{
+    display : flex;
+    flex-direction : column;
+    justify-content: center;
+    align-content: center;
+    width : 800px;
+    height : 700px;
+    border : 1px solid red;
+    border-radius : 10px;
+    padding : 10px;
+}
+
+.focusFigureContainer{
+    display : flex;
+    flex-direction : row;
+    justify-content : center;
+    height : 150px;
+}
+
+#currentFocusFigure{
+    display : flex;
+    border : 1px solid red;
+    width : 300px;
+    height : 130px;
+    border-radius : 10px;
+    padding : 10px;
+}
+
+#meanFocusFigure{
+    display : flex;
+    border : 1px solid slateblue;
+    width : 300px;
+    height : 130px;
+    border-radius : 10px;
+    padding : 10px;
+}

@@ -41,5 +41,12 @@ class Datamanage :
         self.data['video_time'].append(self.video_time)
         self.data['focus_prob'].append(self.focus_prob)
     
+    def reset_data(self):
+        self.data = {
+            'real_time' : [],
+            'focus_prob' : [],
+            'video_time' : [],
+        }
+    
 
 # 2022.10.09 오후 6시53분 -> video_time append 하는 기능 제거.
