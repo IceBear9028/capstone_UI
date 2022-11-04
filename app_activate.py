@@ -107,7 +107,7 @@ app.layout = html.Div(
                 dcc.Interval(
                     id = interval,
                     disabled = False,
-                    interval = 1*500,
+                    interval = 1*1000,
                     n_intervals= 0
                 ),
                 html.Div(
@@ -213,10 +213,11 @@ def generate_notice(*args):
 def current_time_check(n, current_time):
     global video_time
     video_time = int(current_time)
-    focus_notice.section_stored(graph_datamanage.data['video_time'],graph_datamanage.data['focus_prob'])
+    focus_notice.section_mean_cal(graph_datamanage.data['video_time'],graph_datamanage.data['focus_prob'])
     focus_notice.save_section_state()
     print(focus_notice.sections_check)
     return [html.Span(n)]
+
 
 # sections_state값에 따른 section 의 style 변경
 @app.callback(

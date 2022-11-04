@@ -125,14 +125,13 @@ class focus_notice_player:
                     return 'btn {0}'.format(i)
     
     # prob 값이 들어오면, 평균으로 계산해주는 함수
-
-    # 영상시간과 확률을 받으면, 이를 section_check 딕션너리에 업데이트
-    def section_stored(self, time_list, prob_list):
+    # 매 프레임마다 영상시간과 확률을 받으면, 이를 section_check 딕션너리에 업데이트
+    def section_mean_cal(self, time_list, prob_list):
         time, prob = self.get_time_prob(time_list, prob_list)
         
         # 비디오 section 이 바뀌는 경우
         if self.video_section != self.find_section_id(time):
-            # 1. 처음 웹페이지를 열었을 때.
+            # 1. 처음 웹페이지를 열고 플레이어를 재생시킬 때
             if self.video_section == None:
                 # 초기 video_section 값이 None 인 경우는 처음 페이지를 열었을 때 밖에 없다.
                 # 따라서 초기 한번만 실행되고 이후에는 사용되지 않는다.
@@ -144,7 +143,8 @@ class focus_notice_player:
                 self.cal_watching_time('start')
             
 
-            # 2. 이후 플레이어가 계속해서 돌아가는 경우.
+            # 2. section 의 학습이 끝난경우
+            # -> section 의 시간측정을 끝내고, 집중도를 평균으로 구한다.
             else:
                 # 시간 기록을 정지한다.
                 self.cal_watching_time('end')
@@ -155,9 +155,6 @@ class focus_notice_player:
                 # 이전에 저장되어 있던 watching_time 값을 더해서 section 간 최종 시청한 시간을 저장한다.
                 self.sections_check['time'][self.video_section] += self.watching_time
 
-                # 실험용으로, 섹션마다 prob 값을 평균이아닌, 즉각적인 값으로 넣기
-                # self.sections_check['prob'][self.video_section] = prob
-
                 # 시청시간을 다시 기록한다.
                 self.cal_watching_time('start')
 
@@ -166,6 +163,7 @@ class focus_notice_player:
 
         # 비디오 section 이 동일한 경우
         else:
+            self.sections_check['section_state'][self.video_section] = 1
             self.sections_check['prob'][self.video_section] = np.insert(self.sections_check['prob'][self.video_section], 0, int(prob*100))
             # self.cal_watching_time('end')
             # self.sections_check['time'][self.video_section] += self.watching_time
@@ -179,7 +177,7 @@ class focus_notice_player:
             if value_time == 0:
                 self.sections_check['section_state'][section_id] = 0
 
-            elif (self.section_time - 1) > value_time: 
+            elif value_time !=0 and (self.section_time - 1) > value_time: 
                 self.sections_check['section_state'][section_id] = 1
 
             # B. section 당 학습시간이 충분한 경우
@@ -191,6 +189,8 @@ class focus_notice_player:
                 # section 의 집중확률이 높은경우
                 else:
                     self.sections_check['section_state'][section_id] = 3
+
+        
 
     # section_state 값에 따라 각 section의 style 을 업데이트
     def set_section_style(self, section_state):
