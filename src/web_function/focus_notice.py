@@ -92,7 +92,7 @@ class focus_notice_player:
             self.sections_timeline['btn {0}'.format(i)] = self.section_time * i
 
             # section_check : 각 섹션 내의 초단위로 수업을 들은 여부를 체크하는 딕셔너리
-            self.sections_check['time']['btn {0}'.format(i)] = 0
+            self.sections_check['time']['btn {0}'.format(i)] = False
             self.sections_check['prob']['btn {0}'.format(i)] = np.array([])
             self.sections_check['section_state']['btn {0}'.format(i)] = 0
             
@@ -163,7 +163,7 @@ class focus_notice_player:
 
         # 비디오 section 이 동일한 경우
         else:
-            self.sections_check['section_state'][self.video_section] = 1
+            self.sections_check['time'][self.video_section] = True
             self.sections_check['prob'][self.video_section] = np.insert(self.sections_check['prob'][self.video_section], 0, int(prob*100))
             # self.cal_watching_time('end')
             # self.sections_check['time'][self.video_section] += self.watching_time
@@ -174,10 +174,10 @@ class focus_notice_player:
     def save_section_state(self):
         for section_id, value_time in self.sections_check['time'].items():
             # A. section 당 학습시간이 부족한 경우
-            if value_time == 0:
+            if value_time == False:
                 self.sections_check['section_state'][section_id] = 0
 
-            elif value_time !=0 and (self.section_time - 1) > value_time: 
+            elif value_time == True or (self.section_time - 1) > value_time: 
                 self.sections_check['section_state'][section_id] = 1
 
             # B. section 당 학습시간이 충분한 경우
