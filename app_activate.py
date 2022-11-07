@@ -21,7 +21,7 @@ focus_result = streamcam.focus_prob
 
 # 1. 데이터 프레임 불러오기
 
-# 2. 그래프 저장
+confirm = 'confirmSection'
 graph_figure = 'focus1'
 frame = 'webcam_frame'
 focus_marking_player = 'focus_marking_player'
@@ -44,6 +44,10 @@ app = Dash(__name__, server=server)
 app.layout = html.Div(
     className = "container",
     children = [
+        dcc.ConfirmDialog(
+            id = confirm,
+            message = '영상구간을 다시 재학습할건가요?'
+        ),
         html.Div(
             className = 'playerContainer',
             children = [
@@ -181,6 +185,17 @@ def focus_check(n):
     focus = graph_datamanage.data['focus_prob']
     return [html.H1(str(round(focus[-1], 3)))]
 
+# 버튼을 눌렀을 때, 집중도를 다시 측정할지 말지 뜨는 알림창
+@app.callback(
+    Output(confirm, 'displayed'),
+    focus_notice.marge_sections_Input
+)
+def confirm_relearn(*args):
+    # section을 선택했을 때, 재학습할지말지 확인하는 코드
+    if not type(focus_notice.sections_check['time'][ctx.triggered_id]) == bool:
+        return True
+    return False
+
 
 # focus_notice_player 클래스 기능구현
 @app.callback(
@@ -195,10 +210,11 @@ def generate_notice(*args):
         focus_notice.generate_section_TF = True
 
     else:
-        # 학습시간을 만족하는데, 집중도가 낮아서 재학습을 해야 하는경우
-        if focus_notice.sections_check['section_state'] == 2 or focus_notice.sections_check['section_state'] == 3 :
-            # 기존 학습한 기록을 리셋한다.
-            focus_notice.sections_check['time'][ctx.triggered_id] = 0
+        # 학습시간을 만족하지만 재학습을 하고싶은 경우
+        if focus_notice.sections_check['section_state'] == 2 or \
+            focus_notice.sections_check['section_state'] == 3 :
+            # 기존 학습한 기록을 리셋한다(학습시간,프레임당 집중도).
+            focus_notice.sections_check['time'][ctx.triggered_id] = True
             focus_notice.sections_check['prob'][ctx.triggered_id] = np.array([])
 
         return focus_notice.sections_timeline[ctx.triggered_id]
@@ -262,7 +278,6 @@ def stream_gen( src ):
 
 if __name__ == '__main__':
     app.run_server(debug=True)
-
 
 
 # $ pip install --upgrade pip
