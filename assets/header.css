@@ -4,6 +4,15 @@ body{
     align-items: center;
     margin-top : 50px;
 }
+#videoCurrentTime{
+    font-size : 1px;
+    color : #fff;
+}
+.titleContainer{
+    display : flex;
+    justify-content : flex-start
+}
+
 
 .container{
     display : flex;
@@ -17,8 +26,8 @@ body{
     flex-direction : column;
     justify-content: center; 
     align-content: center;
-    width : 800px;
-    height : 700px;
+    width : 900px;
+    height : 750px;
     border : 1px solid #808080;
     border-radius : 10px;
     padding : 10px;
@@ -28,7 +37,8 @@ body{
 } */
 
 div[id~='btn']:hover{
-    border : 2px solid #808080;
+    border : 2px solid #ababab;
+    border-radius : 5px;
 }
 
 #videoCurrentTime{
@@ -43,10 +53,11 @@ div[id~='btn']:hover{
     justify-content: center;
     align-content: center;
     width : 800px;
-    height : 700px;
+    height : 750px;
     border : 1px solid red;
     border-radius : 10px;
     padding : 10px;
+    margin-left : 20px;
 }
 
 .focusFigureContainer{

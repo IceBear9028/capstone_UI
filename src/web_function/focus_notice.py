@@ -7,7 +7,7 @@ class focus_notice_player:
     def __init__(self):
         # section_num : 영상에 대한 구간 갯수
         self.section_num = 30
-        self.section_container_width = 780
+        self.section_container_width = 880
         # elements_number : 집중구간 단위 블록의 갯수
         # section_time : 동영상 구간을 30개로 나누었을 때의 시간
         self.section_time = 0
@@ -21,7 +21,6 @@ class focus_notice_player:
             # 'border' : '1px solid red',
             'height' : 'auto',
             'width' : '{0}px'.format(self.section_container_width/self.section_num),
-            'hover' : {'border' : '1px solid #a0a0a0'}
         }
         # section_color : sections_check['section_state'] 값에 따른 색 변화
         # 색 순서 -> 측정x, 학습시간부족, 집중도낮음, 집중도높음
@@ -40,7 +39,7 @@ class focus_notice_player:
         self.sections = [
             html.Div(
                 id='btn {0}'.format(i),
-                children = [html.P('{0}'.format(i), style = {'color' : '#808080'})],
+                children = [html.P('{0}'.format(i + 1), style = {'color' : '#808080', 'font-size' : '8px'})],
                 style = self.section_style,
                 n_clicks = 0
             ) for i in range(self.section_num)

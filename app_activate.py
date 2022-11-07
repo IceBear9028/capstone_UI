@@ -71,11 +71,12 @@ app.layout = html.Div(
                         # url = "assets/test_Video/JSON프론트엔드2.mp4",
                         url = "assets/test_Video/뉴진스(NewJeans)'Attention'.mp4",
                         controls = True,
-                        width ='800px',
+                        width ='900px',
                         height = '500px',
                         style = {
                             'display' : 'flex',
                             'justify-content' : 'center',
+                            'align-content' : 'center'
                         }
                     ),
                     html.Div(
