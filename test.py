@@ -16,3 +16,7 @@
 
 print(type(True))
 print(type(True)==bool)
+print(bool(1))
+print(bool(0))
+print(bool(-1))
+print(int(bool(None)))

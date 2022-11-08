@@ -51,6 +51,9 @@ class focus_notice_player:
 
         self.video_section = None
 
+        # confirm창에서 submit cancel을 누른 값을 저장하는 변수
+        self.confirm_submit = 0
+        self.confirm_cancel = 0
 
         self.sections_id = []
 

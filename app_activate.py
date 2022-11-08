@@ -6,6 +6,9 @@ from flask import Flask, Response, request
 from src.model_api.streamer import Streamer
 from src.datastroage.graph_data import Datamanage
 from src.web_function.focus_notice import focus_notice_player
+import dash_bootstrap_components as dbc
+
+from focus_page import FocusFigure
 
 graph_datamanage = Datamanage()
 streamcam = Streamer()
@@ -32,6 +35,8 @@ current_focus_figure = 'currentFocusFigure'
 mean_focus_figure = 'meanFocusFigure'
 
 
+
+
 # 3. 웹 레이아웃 설정
 server = Flask(__name__)
 app = Dash(__name__, server=server)
@@ -47,6 +52,17 @@ app.layout = html.Div(
         dcc.ConfirmDialog(
             id = confirm,
             message = '영상구간을 다시 재학습할건가요?'
+        ),
+        dcc.Interval(
+            id = interval,
+            disabled = False,
+            interval = 1*1000,
+            n_intervals= 0
+        ),
+        dbc.Nav(
+            [
+                dbc.NavLink("click", href = "/foucsFigure"),
+            ]
         ),
         html.Div(
             className = 'playerContainer',
@@ -106,45 +122,43 @@ app.layout = html.Div(
                 ]
             ),
         html.Div(
-            className = 'focusResultContainer',
-            children =[    
-                dcc.Graph(id = graph_figure),
-                dcc.Interval(
-                    id = interval,
-                    disabled = False,
-                    interval = 1*1000,
-                    n_intervals= 0
-                ),
-                html.Div(
-                    className = "focusProbView",
-                    children = [
-                        html.Img(
-                            src = "/video",
-                            id = "facePhoto",
-                            style = {
-                                'border' : '1px solid #ddd',
-                                "border-radius" : '10px',
-                                'padding' : '5px',
-                                'width' : '200px'
-                            }
-                        ),
-                        html.Div(
-                            className = 'focusFigureContainer',
-                            children = [
-                                html.Div(
-                                    id = current_focus_figure,
-                                    children = []
-                                ),
-                                html.Div(
-                                    id = mean_focus_figure,
-                                    children = []
-                                )
-                            ]
-                        ),
-                    ],
-                ),
-            ],
+            id = 'focusContainer',
+            children = []
         )
+        # html.Div(
+        #     className = 'focusResultContainer',
+        #     children =[    
+        #         dcc.Graph(id = graph_figure),
+        #         html.Div(
+        #             className = "focusProbView",
+        #             children = [
+        #                 html.Img(
+        #                     src = "/video",
+        #                     id = "facePhoto",
+        #                     style = {
+        #                         'border' : '1px solid #ddd',
+        #                         "border-radius" : '10px',
+        #                         'padding' : '5px',
+        #                         'width' : '200px'
+        #                     }
+        #                 ),
+        #                 html.Div(
+        #                     className = 'focusFigureContainer',
+        #                     children = [
+        #                         html.Div(
+        #                             id = current_focus_figure,
+        #                             children = []
+        #                         ),
+        #                         html.Div(
+        #                             id = mean_focus_figure,
+        #                             children = []
+        #                         )
+        #                     ]
+        #                 ),
+        #             ],
+        #         ),
+        #     ],
+        # )
     ]
 )
     
@@ -194,7 +208,11 @@ def focus_check(n):
 def confirm_relearn(*args):
     # section을 선택했을 때, 재학습할지말지 확인하는 코드
     if not type(focus_notice.sections_check['time'][ctx.triggered_id]) == bool:
-        return True
+        # 이미 section의 학습이 끝나서 section_state 를 부여받은 경우에 대해서 재학습 여부를 물어보게 된다.
+        if focus_notice.sections_check['section_state'][ctx.triggered_id] == 2 or \
+            focus_notice.sections_check['section_state'][ctx.triggered_id] == 3:
+            return True
+
     return False
 
 
@@ -202,6 +220,8 @@ def confirm_relearn(*args):
 @app.callback(
     Output(video_player, 'seekTo'),
     focus_notice.marge_sections_Input,
+    Input(confirm, 'submit_n_clicks'),
+    Input(confirm, 'cancel_n_clicks'),
 )
 def generate_notice(*args):
     # sections_timeline 딕셔너리를 만들기 위한 코드.
@@ -210,16 +230,24 @@ def generate_notice(*args):
         focus_notice.generate_section(args[0])
         focus_notice.generate_section_TF = True
 
-    else:
-        # 학습시간을 만족하지만 재학습을 하고싶은 경우
-        if focus_notice.sections_check['section_state'] == 2 or \
-            focus_notice.sections_check['section_state'] == 3 :
-            # 기존 학습한 기록을 리셋한다(학습시간,프레임당 집중도).
+    else:      
+        # 학습이 끝난 section을 눌렀을 때, 재학습을 할지 여부를 물어보는 confirm 창 출력
+        # 1. confirm창의 accept를 눌렀을 때
+        # print("if문 돌기전"+focus_notice.confirm_submit+"|"+focus_notice.confirm_cancel)
+        if focus_notice.confirm_submit + 1 == args[-2] and (focus_notice.confirm_cancel == args[-1] or focus_notice.confirm_cancel == None):
             focus_notice.sections_check['time'][ctx.triggered_id] = True
             focus_notice.sections_check['prob'][ctx.triggered_id] = np.array([])
+            focus_notice.confirm_submit += 1
+            return focus_notice.sections_timeline[ctx.triggered_id]    
+        
+        # 2. confirm 창의 cancel을 눌렀을 때
+        elif focus_notice.confirm_cancel + 1 == args[-1] and (focus_notice.confirm_submit == args[-2] or focus_notice.confirm_submit == None):
+            focus_notice.confirm_cancel += 1
+            pass
 
-        return focus_notice.sections_timeline[ctx.triggered_id]
-
+        # 3. confirm 창이 안떴을 때
+        else:
+            return focus_notice.sections_timeline[ctx.triggered_id]
 
 # section_time 저장 기능
 @app.callback(
@@ -232,7 +260,7 @@ def current_time_check(n, current_time):
     video_time = int(current_time)
     focus_notice.section_mean_cal(graph_datamanage.data['video_time'],graph_datamanage.data['focus_prob'])
     focus_notice.save_section_state()
-    print(focus_notice.sections_check)
+    # print(focus_notice.sections_check)
     return [html.Span(n)]
 
 
@@ -249,7 +277,7 @@ def update_section(interval):
 
 
 # 5. 웹캠 연결용 서버
-@server.route('/video')
+@server.route('/')
 def stream():
     src = request.args.get('src', default=0, type = int)
     try :
