@@ -11,8 +11,7 @@ from queue import Queue
 import mediapipe as mp
 import pygame
 from fer import FER
-from fer.utils import draw_annotations
-from src.model_api.activate_class import model_start, off_angle, moves_ZX, fer
+from src.model_api.activate_class import model_start, face_angle_, face_off_,moves_, emot_
 
 # 참고할 웹사이트
 # http://wandlab.com/blog/?p=94
@@ -39,12 +38,9 @@ class Streamer :
 
         
         # focus_result() 함수에 사용되는 초기변수들
-        self.start = model_start()
-        self.scalar = self.start[0]
-        self.model = self.start[1]
+        self.model = model_start()
 
         self.mp_face_mesh = mp.solutions.face_mesh
-        self.mp_pose = mp.solutions.pose
         self.detector = FER()
 
         self.passed = 0
@@ -55,12 +51,16 @@ class Streamer :
 
         self.moving = None
         self.face_angle = None
-        self.come_off = None
+        self.face_off = None
+            
+        # 처음 부른 놈들
+        pygame.init()
+        emot_.init()
+        moves_.init()
+        face_angle_.init()
+        face_off_.init()
 
         pygame.init()
-        fer.init()
-        moves_ZX.init()
-        off_angle.init()
 
     def run(self, src = 0):
         # 1. 먼저, 카메라를 정지
@@ -136,74 +136,80 @@ class Streamer :
         return cv2.imencode('.jpg',frame)[1].tobytes()
 
 
+
     def focus_result(self):
-        with self.mp_face_mesh.FaceMesh(max_num_faces = 1, refine_landmarks=True,min_detection_confidence=0.5, min_tracking_confidence=0.5) as face_mesh:
-            with self.mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
-                if not self.capture.isOpened():
-                    frame = self.blank()
-                else:
-                    frame = self.read()
-                    if frame.any() == False :
-                        print("Ignoring empty camera frame.")
-                        self.capture.release()
-                        cv2.destroyAllWindows()
-                    
-                    frame.flags.writeable = False
-                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        with self.mp_face_mesh.FaceMesh(max_num_faces = 1, refine_landmarks=True,min_detection_confidence=0.5, min_tracking_confidence=0.5) as face_mesh:       
+            if not self.capture.isOpened():
+                frame = self.blank()
+            else:
+                frame = self.read()
+                if frame.any() == False :
+                    print("Ignoring empty camera frame.")
+                    self.capture.release()
+                    cv2.destroyAllWindows()
+                
+                frame.flags.writeable = False
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-                    fm_results = face_mesh.process(frame)
-                    #pose_results = pose.process(frame)
+                fm_results = face_mesh.process(frame)
+                #pose_results = pose.process(frame)
 
-                    frame.flags.writeable = True
-                    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                frame.flags.writeable = True
+                frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
-                    emotions = self.detector.detect_emotions(frame)
-                    frame = cv2.flip(frame, 1)
+                emotions = self.detector.detect_emotions(frame)
+                frame = cv2.flip(frame, 1)
 
-                    try:
-                        fer_result = fer.detect(frame, emotions)
-                        #moving = moves_ZX.detect(pose_results)
-                        self.come_off, self.face_angle = off_angle.detect(frame, fm_results)
+                try:
+                    # fer 추출 데이터
+                    self.fer_result = emot_.detect(emotions)
+                    #moving = moves_ZX.detect(pose_results)
 
-                        self.passed = pygame.time.get_ticks() - self.start
-
-                        if self.passed > 10:
-                            plus = [self.moving, self.face_angle, self.come_off]
-                            row = fer_result + plus
-                            self.start = pygame.time.get_ticks()
-                            self.passed = 0
-
-                            fer.init()
-                            moves_ZX.init()
-                            off_angle.init()
-
-                            try:
-                                X1 = self.scalar.transform(np.array(row).reshape(1,-1))
-                                self.focus = self.model.predict(X1)[0]
-                                self.focus_prob = self.model.predict_proba(X1)[0][1]
+                    # 페이스 메시가 뽑아낸 데이터
+                    self.moving = moves_.detect(fm_results)
+                    self.face_angle = face_angle_.detect(fm_results)
+                    self.face_off = face_off_.detect(frame, fm_results)
+                    self.passed = pygame.time.get_ticks() - self.start
 
 
-                                self.current_time = datetime.datetime.now()
-                                print(self.current_time)
-                                print(self.focus_prob)
+                    if self.passed > 100:
+                        plus = [self.moving, self.face_angle, self.face_off]
+                        row = self.fer_result + plus
+                        self.start = pygame.time.get_ticks()
+                        self.passed = 0
 
-                                return self.current_time, self.focus_prob
+                        emot_.init() # 데이터 초기화
+                        moves_.init()
+                        face_angle_.init()
+                        face_off_.init()
+
+                        try:
+                            X1 = np.array(row).reshape(1,-1)
+                            self.focus = self.model.predict(X1)[0]
+                            self.focus_prob = self.model.predict_proba(X1)[0][1]
+
+                            self.current_time = datetime.datetime.now()
+                            print(self.current_time)
+                            print(self.focus_prob)
+
+                            return self.current_time, self.focus_prob
+                        
+                        except Exception as e:
+                            print("예외가 발생하였습니다.", e)
+                            self.current_time = datetime.datetime.now()
+                            self.focus_prob = 0
                             
-                            except Exception as e:
-                                print("예외가 발생하였습니다.", e)
-                                self.current_time = datetime.datetime.now()
-                                self.focus_prob = 0
-                                
-                                return self.current_time, self.focus_prob
-                            
+                            return self.current_time, self.focus_prob                        
 
-                    except Exception as e:
-                        print("예외가 발생하였습니다.", e)
-                        self.current_time = datetime.datetime.now()
-                        self.focus_prob = 0
-                        return self.current_time, self.focus_prob
-        # self.capture.release()
-        cv2.destroyAllWindows()
+
+                except Exception as e:
+                    print("예외가 발생하였습니다.", e)
+                    self.current_time = datetime.datetime.now()
+                    self.focus_prob = 0
+                    return self.current_time, self.focus_prob
+    
+    # self.capture.release()
+    cv2.destroyAllWindows()
 
     def __exit__(self) :
         print( '* streamer class exit')
