@@ -3,34 +3,68 @@ from dash import dcc, html
 
 layout = html.Div(
     className = 'focusResultContainer',
-    children =[    
-        dcc.Graph(
-            id = 'focus1'
+    children =[
+        html.Div(
+            className = 'titleContainer',
+            children = [
+                html.H2(
+                    className = 'title',
+                    children = ['집중도그래프확인']
+                )
+            ]
         ),
         html.Div(
-            className = "focusProbView",
+            className = 'graphContainer',
             children = [
-                html.Img(
-                    src = "/video",
-                    id = "facePhoto",
+                dcc.Graph(
+                    id = 'focus1',
                     style = {
-                            'border' : '1px solid #ddd',
-                            "border-radius" : '10px',
-                            'padding' : '5px',
-                            'width' : '200px'
-                        }
+                        'border-radius' : '15px', 
+                    }
+                ),
+            ]
+        ),
+        html.Div(
+            className = "focusProbViewContainer",
+            children = [
+                html.Div(
+                    className = 'titleContainer',
+                    children = [
+                        html.H2(
+                            className = 'title',
+                            children = ['집중도 현황판']
+                        )
+                    ]
                 ),
                 html.Div(
-                    className = 'focusFigureContainer',
+                    className = 'focusProbBoard',
                     children = [
-                        html.Div(
-                            id = 'currentFocusFigure',
-                            children = []
+                        html.Img(
+                            src = "/video",
+                            id = "facePhoto",
+                            style = {
+                                'border' : '1px solid #ddd',
+                                "border-radius" : '10px',
+                                'padding' : '5px',
+                                'width' : '220px',
+                                'box-shadow' :  '0 5px 18px -7px rgb(185, 185, 185)',
+                            }
                         ),
+                        html.Div(id ='divSpace_0'),
+                        html.Div(id ='divSpace_1'),
                         html.Div(
-                            id = "meanFocusFigure",
-                            children = []
-                        )
+                            className = 'focusFigureContainer',
+                            children = [
+                                html.Div(
+                                    id = 'currentFocusFigure',
+                                    children = []
+                                ),
+                                html.Div(
+                                    id = "meanFocusFigure",
+                                    children = []
+                                )
+                            ]
+                        ),
                     ]
                 ),
             ],

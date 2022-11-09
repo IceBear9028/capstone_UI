@@ -7,7 +7,7 @@ class focus_notice_player:
     def __init__(self):
         # section_num : 영상에 대한 구간 갯수
         self.section_num = 30
-        self.section_container_width = 880
+        self.section_container_width = 895
         # elements_number : 집중구간 단위 블록의 갯수
         # section_time : 동영상 구간을 30개로 나누었을 때의 시간
         self.section_time = 0

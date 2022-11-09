@@ -5,17 +5,25 @@ body{
     margin-top : 50px;
 }
 #videoCurrentTime{
-    font-size : 1px;
+    font-size : 0px;
     color : #fff;
 }
+
+#title{
+    margin-top : 10px;
+    margin-left: 10px;
+    /* border-bottom : 2px solid #868585; */
+    color : #6f6f6f;
+}
+
 .titleContainer{
     display : flex;
-    justify-content : flex-start
+    justify-content : flex-start;
 }
 video{
     border-radius : 20px;
     background-color : #000;
-    box-shadow: 0 5px 18px -7px rgba(0,0,0,1);
+    /* box-shadow: 0 5px 18px -7px rgba(0,0,0,1); */
 }
 
 
@@ -36,7 +44,9 @@ video{
     /* border : 1px solid #808080; */
     box-shadow: 0 5px 18px -7px rgb(85, 85, 85);
     border-radius : 10px;
-    padding : 15px;
+    padding-bottom : 5px;
+    padding-left : 15px;
+    padding-right: 15px;
 }
 /* .playerContainer:hover{
     border : 5px solid #808080;
@@ -45,28 +55,108 @@ video{
 div[id~='btn']:hover{
     /* border : 2px solid #ababab;
     border-radius : 5px; */
-    box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.6);
+    box-shadow: 0px 4px 5px rgba(168, 168, 168, 0.6);
 }
+
+.foucsMarkingPlayerContainer{
+    margin-top : 20px;
+}
+
+/* 색 알려주는 창 */
+.markingColorInfoContainer{
+    display : flex;
+    flex-direction : row;
+    justify-content : space-between;
+    align-items: center;
+    padding-left : 10px;
+    padding-right : 10px;
+    /* background-color : #E9E9E9; */
+    /* border : 2px solid #868585; */
+    box-shadow: 0 5px 18px -7px rgb(185, 185, 185);
+    border-radius : 10px;
+    width : 300px;
+    height : 40px;
+}
+div[class ~= 'InfoContainer']{
+    display : flex;
+    flex-direction : row;
+    align-items : center;
+    justify-content : center;
+    width : 95px;
+    height : 35px;
+    border-radius : 10px;
+    background-color : #fff;
+}
+div[class ~= 'Color']{
+    display : flex;
+    width : 15px;
+    height : 15px;
+    border-radius : 3px;
+    margin-right: 5px;
+}
+div[class ~= 'red']{
+    background-color : #E1876B;
+}
+div[class ~= 'green']{
+    background-color : #A6DB76;
+}
+div[class ~= 'gray']{
+    background-color : #D0D2D8;
+}
+div[class ~= 'infoSpace']{
+    width : 1px;
+    height : 5px;
+    border-left : 2px solid #808080;
+}
+span[class ~= 'Info']{
+    font-size: 12px;
+}
+
+
+
 
 #videoCurrentTime{
     display : flex;
     justify-content : center;
 }
 
+#focusHeader{
+    display : flex;
+    flex-direction: row;
+    justify-content : space-between;
+    align-items: center;
+    border-top : 1px solid #c4c4c4;
+}
+
+#focusNoticeTitle{
+    color : #6f6f6f;
+    margin-left : 10px;
+}
+
+#focusHeaderChild1{
+    display : flex;
+    flex-direction: row;
+    justify-content : space-between;
+    align-items: center;
+    width : 560px;
+}
+
+
 #focusFigureActivateBtn{
     display : flex;
     justify-content : center;
     align-items: center;
-    width : 80px;
-    height : 80px;
-    border-radius : 25px;
+    width : 85px;
+    height : 40px;
+    border-radius : 10px;
     background-color: #4486F6;
     color : #fff;
     margin-left : 20px;
     box-shadow: 0 5px 18px -7px rgb(85, 85, 85);
 }
 #focusFigureActivateBtn:hover{
-    box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.6);
+    /* box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.6); */
+    background-color: #2155aee7;
 }
 
 
@@ -76,14 +166,45 @@ div[id~='btn']:hover{
     flex-direction : column;
     justify-content: center;
     align-content: center;
-    width : 800px;
+    width : 700px;
     height : 750px;
     background-color : #f6f6f6;
-    box-shadow: 0 5px 18px -7px rgba(0,0,0,1);
+    box-shadow: 0 5px 18px -7px rgb(129, 129, 129);
     border-radius : 10px;
-    padding : 15px;
+    padding-left : 15px;
+    padding-right : 15px;
     margin-left : 20px;
 }
+/* .titleContainer{
+
+} */
+
+/* #titleGraph{
+    margin-top : 10px;
+    margin-left: 10px;
+    color : #6f6f6f;
+} */
+
+
+.title{
+    margin-top : 10px;
+    margin-left: 10px;
+    /* border-bottom : 2px solid #868585; */
+    color : #6f6f6f;
+}
+
+
+.graphContainer{
+    display :flex;
+    flex-direction: columns;
+    justify-content : center;
+    width : 690px;
+    height : 425px;
+    padding-bottom : 15px;
+    margin-bottom : 15px;
+    border-bottom : 1px solid #c4c4c4;
+}
+
 
 .focusFigureContainer{
     display : flex;
@@ -92,26 +213,38 @@ div[id~='btn']:hover{
     height : 150px;
 }
 
-.focusProbView{
+.focusProbBoard{
     display : flex;
     flex-direction: row;
     justify-content : center;
 }
 
-#currentFocusFigure{
+#divSpace_0{
     display : flex;
-    border : 1px solid red;
-    width : 170px;
-    height : 130px;
-    border-radius : 10px;
-    padding : 10px;
+    width : 20px;
+    height : 150px;
+    border-right: 1px solid #c4c4c4;
+}
+#divSpace_1{
+    display : flex;
+    width : 20px;
+    height : 125px;
 }
 
-#meanFocusFigure{
+#currentFocusFigure{
+    display : flex;
+    width : 200px;
+    height : 125px;
+    border-radius : 10px;
+    padding : 10px;
+    box-shadow: 0 5px 18px -7px rgb(158, 158, 158);
+}
+
+/* #meanFocusFigure{
     display : flex;
     border : 1px solid slateblue;
     width : 170px;
     height : 130px;
     border-radius : 10px;
     padding : 10px;
-}
+} */

@@ -1,5 +1,4 @@
 import plotly
-import numpy as np
 from dash_player import DashPlayer
 from dash import Dash, dcc, html, Input, Output,ctx
 from flask import Flask, Response, request
@@ -31,10 +30,14 @@ focus_marking_player = 'focus_marking_player'
 interval = 'interval'
 video_player = 'video_player'
 video_current_time = 'videoCurrentTime'
+marking_color_info_container = 'markingColorInfoContainer'
+
 focus_container = 'focusContainer'
 current_focus_figure = 'currentFocusFigure'
 mean_focus_figure = 'meanFocusFigure'
 activate_focus_figure = 'focusFigureActivateBtn'
+focus_header = 'focusHeader'
+focus_header_child1 = 'focusHeaderChild1'
 
 
 
@@ -83,7 +86,7 @@ app.layout = html.Div(
                         # url = "assets/test_Video/JSON프론트엔드2.mp4",
                         url = "assets/test_Video/뉴진스(NewJeans)'Attention'.mp4",
                         controls = True,
-                        width ='890px',
+                        width ='900px',
                         height = '490px',
                         style = {
                             'display' : 'flex',
@@ -94,9 +97,59 @@ app.layout = html.Div(
                     html.Div(
                         className = 'foucsMarkingPlayerContainer',
                         children = [
-                            html.H2(
-                                id = 'aaa',
-                                children = ['집중도저하구간 확인']
+                            html.Div(
+                                id = focus_header,
+                                children = [
+                                    html.Div(
+                                        id = focus_header_child1,
+                                        children = [
+                                            html.H2(
+                                                id = 'focusNoticeTitle',
+                                                children = ['집중도저하구간 확인']
+                                            ),
+                                            html.Div(
+                                                "activate",
+                                                id = activate_focus_figure,
+                                                n_clicks = 0,
+                                            ),
+                                        ]
+                                    ),
+                                    html.Div(
+                                        className = marking_color_info_container,
+                                        children = [
+                                            html.Div(
+                                                className = 'Red InfoContainer',
+                                                children = [
+                                                    html.Div(className = 'red Color'),
+                                                    html.Span(
+                                                        className = 'red Info',
+                                                        children = ['재학습필요']
+                                                    )
+                                                ]
+                                            ),
+                                            html.Div(
+                                                className = 'Green InfoContainer',
+                                                children = [
+                                                    html.Div(className = 'green Color'),
+                                                    html.Span(
+                                                        className = 'green Info',
+                                                        children = ['학습완료']
+                                                    )
+                                                ]
+                                            ),
+                                            html.Div(
+                                                className = 'Gray InfoContainer',
+                                                children = [
+                                                    html.Div(className = 'gray Color'),
+                                                    html.Span(
+                                                        className = 'gray Info',
+                                                        children = ['학습미완료']
+                                                    )
+                                                ]
+                                            ),
+                                        ]
+                                    ),
+                                ]
                             ),
                             html.Div(
                                 id = focus_marking_player,
@@ -125,11 +178,6 @@ app.layout = html.Div(
                         }
                     ),
             ]
-        ),
-        html.Div(
-            "activate",
-            id = activate_focus_figure,
-            n_clicks = 0,
         ),
         html.Div(
             id = 'focusContainer',
@@ -175,7 +223,10 @@ def focus_1(num):
     },1,1)
     fig.update_yaxes(range = [-0.1,1.1])
     # 그래프 margin 제거
-    fig['layout'].update(margin = dict(l=0, r=0, b=0, t=0 ))
+    fig['layout'].update(
+        margin = dict(l=20, r=20, b=10, t=15 ),
+        
+        )
 
     return fig
 
@@ -188,6 +239,17 @@ def focus_1(num):
 def focus_check(n):
     focus = graph_datamanage.data['focus_prob']
     return [html.H1(str(round(focus[-1], 3)))]
+
+# n_interval 통해서 학습시간을 받고, 이를 시간으로 알려준다.
+# @app.callback(
+#     Output(current_focus_figure, 'children'),
+#     Input(interval, 'n_intervals')
+# )
+# def current_time_check(time):
+#     minute = time/60
+#     second = time%60
+#     return [html.H1('{0}minute : {1}second'.format(minute, second))]
+
 
 # 버튼을 눌렀을 때, 집중도를 다시 측정할지 말지 뜨는 알림창
 @app.callback(
@@ -203,6 +265,7 @@ def confirm_relearn(*args):
             return True
 
     return False
+
 
 # focus_notice_player 클래스 기능구현
 @app.callback(
@@ -233,6 +296,7 @@ def generate_notice(*args):
             pass
         else:
             return focus_notice.sections_timeline[ctx.triggered_id]
+
 
 # section_time 저장 기능
 @app.callback(
