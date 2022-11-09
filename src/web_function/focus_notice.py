@@ -52,8 +52,7 @@ class focus_notice_player:
         self.video_section = None
 
         # confirm창에서 submit cancel을 누른 값을 저장하는 변수
-        self.confirm_submit = 0
-        self.confirm_cancel = 0
+        self.confirm_data = {'accept' : None, 'cancel' : None}
 
         self.sections_id = []
 
@@ -99,7 +98,22 @@ class focus_notice_player:
             self.sections_check['time']['btn {0}'.format(i)] = False
             self.sections_check['prob']['btn {0}'.format(i)] = np.array([])
             self.sections_check['section_state']['btn {0}'.format(i)] = 0
-            
+
+    # args[-2], args[-1]에, None 값을 처리하기 위한 함수
+    def args_refine(self,accept,cancel):
+        if accept == None or cancel == None:
+            if accept == None and cancel != None:
+                self.confirm_data['accept'] = 0
+                self.confirm_data['cancel'] = cancel
+
+            elif cancel == None and accept != None:
+                self.confirm_data['accept'] = accept
+                self.confirm_data['cancel'] = 0
+            else:
+                pass
+        else:
+            self.confirm_data['accept'] = accept
+            self.confirm_data['cancel'] = cancel
 
     # section 당 시청한 시간을 계산한다.
     def cal_watching_time(self, on_off):
@@ -173,11 +187,7 @@ class focus_notice_player:
         else:
             self.sections_check['time'][self.video_section] = True
             self.sections_check['prob'][self.video_section] = np.insert(self.sections_check['prob'][self.video_section], 0, int(prob*100))
-            # self.cal_watching_time('end')
-            # self.sections_check['time'][self.video_section] += self.watching_time
-            # self.video_section = self.find_section_id(time)
-        
-
+    
     # section 의 state를 return 하는 함수
     def save_section_state(self,current_time):
         for section_id, value_time in self.sections_check['time'].items():
@@ -199,7 +209,6 @@ class focus_notice_player:
                 # section 의 집중확률이 높은경우
                     else:
                         self.sections_check['section_state'][section_id] = 3
-            
             
 
     # section_state 값에 따라 각 section의 style 을 업데이트

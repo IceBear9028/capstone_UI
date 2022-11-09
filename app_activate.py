@@ -80,8 +80,8 @@ app.layout = html.Div(
                         # 도움받은 사이트 :
                         # https://community.plotly.com/t/dash-player-custom-component-playing-and-controlling-your-videos-with-dash/12349
                         id = video_player,
-                        url = "assets/test_Video/JSON프론트엔드2.mp4",
-                        # url = "assets/test_Video/뉴진스(NewJeans)'Attention'.mp4",
+                        # url = "assets/test_Video/JSON프론트엔드2.mp4",
+                        url = "assets/test_Video/뉴진스(NewJeans)'Attention'.mp4",
                         controls = True,
                         width ='890px',
                         height = '490px',
@@ -130,13 +130,6 @@ app.layout = html.Div(
             "activate",
             id = activate_focus_figure,
             n_clicks = 0,
-            style = {
-                'display' : 'flex',
-                'justify-content' : 'flex-end',
-                'align-items' : 'center',
-                'width' : '80px',
-                'height' : '160px'
-            }
         ),
         html.Div(
             id = 'focusContainer',
@@ -166,7 +159,7 @@ def activate_focus_figure_page(n):
 
 
 
-# 4. 그래프 속성 설정
+# 그래프 속성 설정
 @app.callback(
     Output(graph_figure, 'figure'),
     Input(interval, 'n_intervals')
@@ -174,7 +167,6 @@ def activate_focus_figure_page(n):
 def focus_1(num):
     fig = plotly.tools.make_subplots(rows = 1, cols = 1)
     fig['layout']['legend'] = {'x': 0, 'y': 1, 'xanchor': 'left'}
-
     fig.append_trace({
         'x' : graph_datamanage.data['real_time'],
         'y' : graph_datamanage.data['focus_prob'],
@@ -182,9 +174,10 @@ def focus_1(num):
         'type' : 'scatter'
     },1,1)
     fig.update_yaxes(range = [-0.1,1.1])
+    # 그래프 margin 제거
+    fig['layout'].update(margin = dict(l=0, r=0, b=0, t=0 ))
 
     return fig
-
 
 
 #현재의 집중도를 확인하는 기능
@@ -211,17 +204,6 @@ def confirm_relearn(*args):
 
     return False
 
-# 현재 재생중인 section 위치를 띄어주는 기능
-# @app.callback(
-#     Output(focus_notice.current_section, 'style'),
-#     Input(video_player, 'currentTime')
-# )
-# def current_video_section_view(time):
-#     focus_notice.current_section = focus_notice.find_section_id(time)
-#     return {
-#         'border-bottom' : '3px solid red',
-#     }
-
 # focus_notice_player 클래스 기능구현
 @app.callback(
     Output(video_player, 'seekTo'),
@@ -237,31 +219,18 @@ def generate_notice(*args):
         focus_notice.generate_section_TF = True
 
     else:      
-        # 학습이 끝난 section을 눌렀을 때, 재학습을 할지 여부를 물어보는 confirm 창 출력
-        # 1. confirm창의 accept를 눌렀을 때
-        # print("if문 돌기전"+focus_notice.confirm_submit+"|"+focus_notice.confirm_cancel)
-        if focus_notice.confirm_submit != args[-2] and (focus_notice.confirm_cancel == args[-1] or focus_notice.confirm_cancel == None):
-            focus_notice.sections_check['time'][ctx.triggered_id] = True
-            focus_notice.sections_check['prob'][ctx.triggered_id] = np.array([])
-            focus_notice.confirm_submit += 1
-            return focus_notice.sections_timeline[ctx.triggered_id]    
-
-        # if focus_notice.confirm_submit + 1 == args[-2] and (focus_notice.confirm_cancel == args[-1] or focus_notice.confirm_cancel == None):
-        #     focus_notice.sections_check['time'][ctx.triggered_id] = True
-        #     focus_notice.sections_check['prob'][ctx.triggered_id] = np.array([])
-        #     focus_notice.confirm_submit += 1
-        #     return focus_notice.sections_timeline[ctx.triggered_id]    
+        focus_notice.args_refine(accept = args[-2], cancel = args[-1])
+       
+        if focus_notice.confirm_data['accept'] != args[-2] and focus_notice.confirm_data['cancel'] == args[-1]:
+            focus_notice.confirm_data['accept'] = args[-2]
+            focus_notice.confirm_data['cancel'] = args[-1]
+            return focus_notice.sections_timeline[ctx.triggered_id]
         
-        # 2. confirm 창의 cancel을 눌렀을 때
-        elif focus_notice.confirm_cancel != args[-1] and (focus_notice.confirm_submit == args[-2] or focus_notice.confirm_submit == None):
-            focus_notice.confirm_cancel += 1
+        # 2. confirm 창에서 cancel 을 누른 경우
+        elif focus_notice.confirm_data['cancel'] != args[-1] and focus_notice.confirm_data['accept'] == [-2]:
+            focus_notice.confirm_data['accept'] = args[-2]
+            focus_notice.confirm_data['cancel'] = args[-1]
             pass
-
-        # elif focus_notice.confirm_cancel + 1 == args[-1] and (focus_notice.confirm_submit == args[-2] or focus_notice.confirm_submit == None):
-        #     focus_notice.confirm_cancel += 1
-        #     pass
-
-        # 3. confirm 창이 안떴을 때
         else:
             return focus_notice.sections_timeline[ctx.triggered_id]
 

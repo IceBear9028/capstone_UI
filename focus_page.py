@@ -4,7 +4,9 @@ from dash import dcc, html
 layout = html.Div(
     className = 'focusResultContainer',
     children =[    
-        dcc.Graph(id = 'focus1'),
+        dcc.Graph(
+            id = 'focus1'
+        ),
         html.Div(
             className = "focusProbView",
             children = [
