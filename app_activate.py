@@ -6,6 +6,9 @@ from flask import Flask, Response, request
 from src.model_api.streamer import Streamer
 from src.datastroage.graph_data import Datamanage
 from src.web_function.focus_notice import focus_notice_player
+import dash_bootstrap_components as dbc
+
+import focus_page 
 
 graph_datamanage = Datamanage()
 streamcam = Streamer()
@@ -28,8 +31,11 @@ focus_marking_player = 'focus_marking_player'
 interval = 'interval'
 video_player = 'video_player'
 video_current_time = 'videoCurrentTime'
+focus_container = 'focusContainer'
 current_focus_figure = 'currentFocusFigure'
 mean_focus_figure = 'meanFocusFigure'
+activate_focus_figure = 'focusFigureActivateBtn'
+
 
 
 # 3. 웹 레이아웃 설정
@@ -47,6 +53,12 @@ app.layout = html.Div(
         dcc.ConfirmDialog(
             id = confirm,
             message = '영상구간을 다시 재학습할건가요?'
+        ),
+        dcc.Interval(
+            id = interval,
+            disabled = False,
+            interval = 1*1000,
+            n_intervals= 0,
         ),
         html.Div(
             className = 'playerContainer',
@@ -68,11 +80,11 @@ app.layout = html.Div(
                         # 도움받은 사이트 :
                         # https://community.plotly.com/t/dash-player-custom-component-playing-and-controlling-your-videos-with-dash/12349
                         id = video_player,
-                        # url = "assets/test_Video/JSON프론트엔드2.mp4",
-                        url = "assets/test_Video/뉴진스(NewJeans)'Attention'.mp4",
+                        url = "assets/test_Video/JSON프론트엔드2.mp4",
+                        # url = "assets/test_Video/뉴진스(NewJeans)'Attention'.mp4",
                         controls = True,
-                        width ='900px',
-                        height = '500px',
+                        width ='890px',
+                        height = '490px',
                         style = {
                             'display' : 'flex',
                             'justify-content' : 'center',
@@ -90,60 +102,45 @@ app.layout = html.Div(
                                 id = focus_marking_player,
                                 children = focus_notice.sections,
                                 style = {
-                                    'background' : '#fff',
+                                    'background' : '#E9E9E9',
                                     'width' : '{0}px'.format(focus_notice.section_container_width),
                                     'height' : '80px',
                                     'border-radius' : '10px',
-                                    'border' : '1px solid #D0D2D8',
-                                    'padding' : '7px',
+                                    # 'border' : '1px solid #D0D2D8',
+                                    'padding' : '3px',
                                     'display' : 'flex',
                                     'flex-direction' : 'row',
-                                    'justify-content' : 'center'
+                                    'justify-content' : 'center',
+                                    'box-shadow' : '0 5px 15px -7px rgba(190,190,190,4)',
                                     }
                             ),
                         ]
-                    )
-                ]
-            ),
+                    ),
+                    html.Img(
+                        src = "/video",
+                        id = "facePhoto",
+                        style = {
+                            'width' : '0px',
+                            'height' : '0px'
+                        }
+                    ),
+            ]
+        ),
         html.Div(
-            className = 'focusResultContainer',
-            children =[    
-                dcc.Graph(id = graph_figure),
-                dcc.Interval(
-                    id = interval,
-                    disabled = False,
-                    interval = 1*1000,
-                    n_intervals= 0
-                ),
-                html.Div(
-                    className = "focusProbView",
-                    children = [
-                        html.Img(
-                            src = "/video",
-                            id = "facePhoto",
-                            style = {
-                                'border' : '1px solid #ddd',
-                                "border-radius" : '10px',
-                                'padding' : '5px',
-                                'width' : '200px'
-                            }
-                        ),
-                        html.Div(
-                            className = 'focusFigureContainer',
-                            children = [
-                                html.Div(
-                                    id = current_focus_figure,
-                                    children = []
-                                ),
-                                html.Div(
-                                    id = mean_focus_figure,
-                                    children = []
-                                )
-                            ]
-                        ),
-                    ],
-                ),
-            ],
+            "activate",
+            id = activate_focus_figure,
+            n_clicks = 0,
+            style = {
+                'display' : 'flex',
+                'justify-content' : 'flex-end',
+                'align-items' : 'center',
+                'width' : '80px',
+                'height' : '160px'
+            }
+        ),
+        html.Div(
+            id = 'focusContainer',
+            children = []
         )
     ]
 )
@@ -155,6 +152,19 @@ app.layout = html.Div(
 # 옐로우 -> 진행중 
 
 # 그래프 뜨는것, 구간별로 확인
+
+# 버튼 눌렀을 때 페이지 나오게 설정
+@app.callback(
+    Output(focus_container, 'children'),
+    Input(activate_focus_figure, 'n_clicks'),
+    #Input(activate_focus_figure, 'pathname'),
+)
+def activate_focus_figure_page(n):
+    # 버튼이 눌리면
+    if n%2 == 1:
+        return focus_page.layout
+
+
 
 # 4. 그래프 속성 설정
 @app.callback(
@@ -194,14 +204,30 @@ def focus_check(n):
 def confirm_relearn(*args):
     # section을 선택했을 때, 재학습할지말지 확인하는 코드
     if not type(focus_notice.sections_check['time'][ctx.triggered_id]) == bool:
-        return True
+        # 이미 section의 학습이 끝나서 section_state 를 부여받은 경우에 대해서 재학습 여부를 물어보게 된다.
+        if focus_notice.sections_check['section_state'][ctx.triggered_id] == 2 or \
+            focus_notice.sections_check['section_state'][ctx.triggered_id] == 3:
+            return True
+
     return False
 
+# 현재 재생중인 section 위치를 띄어주는 기능
+# @app.callback(
+#     Output(focus_notice.current_section, 'style'),
+#     Input(video_player, 'currentTime')
+# )
+# def current_video_section_view(time):
+#     focus_notice.current_section = focus_notice.find_section_id(time)
+#     return {
+#         'border-bottom' : '3px solid red',
+#     }
 
 # focus_notice_player 클래스 기능구현
 @app.callback(
     Output(video_player, 'seekTo'),
     focus_notice.marge_sections_Input,
+    Input(confirm, 'submit_n_clicks'),
+    Input(confirm, 'cancel_n_clicks'),
 )
 def generate_notice(*args):
     # sections_timeline 딕셔너리를 만들기 위한 코드.
@@ -210,16 +236,34 @@ def generate_notice(*args):
         focus_notice.generate_section(args[0])
         focus_notice.generate_section_TF = True
 
-    else:
-        # 학습시간을 만족하지만 재학습을 하고싶은 경우
-        if focus_notice.sections_check['section_state'] == 2 or \
-            focus_notice.sections_check['section_state'] == 3 :
-            # 기존 학습한 기록을 리셋한다(학습시간,프레임당 집중도).
+    else:      
+        # 학습이 끝난 section을 눌렀을 때, 재학습을 할지 여부를 물어보는 confirm 창 출력
+        # 1. confirm창의 accept를 눌렀을 때
+        # print("if문 돌기전"+focus_notice.confirm_submit+"|"+focus_notice.confirm_cancel)
+        if focus_notice.confirm_submit != args[-2] and (focus_notice.confirm_cancel == args[-1] or focus_notice.confirm_cancel == None):
             focus_notice.sections_check['time'][ctx.triggered_id] = True
             focus_notice.sections_check['prob'][ctx.triggered_id] = np.array([])
+            focus_notice.confirm_submit += 1
+            return focus_notice.sections_timeline[ctx.triggered_id]    
 
-        return focus_notice.sections_timeline[ctx.triggered_id]
+        # if focus_notice.confirm_submit + 1 == args[-2] and (focus_notice.confirm_cancel == args[-1] or focus_notice.confirm_cancel == None):
+        #     focus_notice.sections_check['time'][ctx.triggered_id] = True
+        #     focus_notice.sections_check['prob'][ctx.triggered_id] = np.array([])
+        #     focus_notice.confirm_submit += 1
+        #     return focus_notice.sections_timeline[ctx.triggered_id]    
+        
+        # 2. confirm 창의 cancel을 눌렀을 때
+        elif focus_notice.confirm_cancel != args[-1] and (focus_notice.confirm_submit == args[-2] or focus_notice.confirm_submit == None):
+            focus_notice.confirm_cancel += 1
+            pass
 
+        # elif focus_notice.confirm_cancel + 1 == args[-1] and (focus_notice.confirm_submit == args[-2] or focus_notice.confirm_submit == None):
+        #     focus_notice.confirm_cancel += 1
+        #     pass
+
+        # 3. confirm 창이 안떴을 때
+        else:
+            return focus_notice.sections_timeline[ctx.triggered_id]
 
 # section_time 저장 기능
 @app.callback(
@@ -231,20 +275,38 @@ def current_time_check(n, current_time):
     global video_time
     video_time = int(current_time)
     focus_notice.section_mean_cal(graph_datamanage.data['video_time'],graph_datamanage.data['focus_prob'])
-    focus_notice.save_section_state()
-    print(focus_notice.sections_check)
+    focus_notice.save_section_state(current_time)
+    # print(focus_notice.sections_check)
     return [html.Span(n)]
 
 
 # sections_state값에 따른 section 의 style 변경
 @app.callback(
     focus_notice.marge_sections_Output,
-    Input(interval, 'n_intervals')
+    Input(interval, 'n_intervals'),
+    # Input(video_player, 'currentTime')
 )
-def update_section(interval):
+def update_section(interval ):
+    global video_time
+    current_section = focus_notice.find_section_id(video_time, value_type='num')
     style_list = []
     for state_value in focus_notice.sections_check['section_state'].values():
         style_list.append(focus_notice.set_section_style(state_value))
+    
+    # 현재 동영상 시간을 받아서, 현재위치의 section을 알리는 style 을 추가한다.
+    # style_list[current_section]['border-bottom'] = '5px solid red'
+    # style_list[current_section]['box-shadow'] = '0 5px 18px -7px rgba(0,0,0,4)'
+    style_list[current_section]['border-bottom'] = '8px solid red'
+
+    # ++ 양끝단의 section을 둥글게 스타일처리하는 코드추가
+    # 1. 'btn 0'의 border-radius 추가
+    style_list[0]['border-top-left-radius'] = '8px'
+    style_list[0]['border-bottom-left-radius'] = '8px'
+
+    # 2, 'btn 29'의 border-radius 추가
+    style_list[-1]['border-top-right-radius'] = '8px'
+    style_list[-1]['border-bottom-right-radius'] = '8px'
+
     return style_list
 
 

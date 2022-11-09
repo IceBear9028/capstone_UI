@@ -51,6 +51,9 @@ class focus_notice_player:
 
         self.video_section = None
 
+        # confirm창에서 submit cancel을 누른 값을 저장하는 변수
+        self.confirm_submit = 0
+        self.confirm_cancel = 0
 
         self.sections_id = []
 
@@ -80,6 +83,8 @@ class focus_notice_player:
 
         self.generate_section_TF = False
 
+        # 재상 section의 위치를 저장하는 변수
+        self.current_section = "btn 0"
 
     # generate_element 함수 실행하면 div가 생성된다.
     # 이 함수는 한번만 실행한다(초기값들을 설정하기 위한 함수).
@@ -117,11 +122,15 @@ class focus_notice_player:
 
 
     # 시간초가 들어오고, 어디 구간인지 알려주는 함수
-    def find_section_id(self, num):
+    def find_section_id(self, num, value_type = 'div_id'):
         for i in range(self.section_num):
             for j in range((i*self.section_time),(i+1)*self.section_time):
                 if j == num:
-                    return 'btn {0}'.format(i)
+                    if value_type == 'div_id':
+                        return 'btn {0}'.format(i)
+                    elif value_type == 'num':
+                        return i
+
     
     # prob 값이 들어오면, 평균으로 계산해주는 함수
     # 매 프레임마다 영상시간과 확률을 받으면, 이를 section_check 딕션너리에 업데이트
@@ -170,26 +179,28 @@ class focus_notice_player:
         
 
     # section 의 state를 return 하는 함수
-    def save_section_state(self):
+    def save_section_state(self,current_time):
         for section_id, value_time in self.sections_check['time'].items():
-            # A. section 당 학습시간이 부족한 경우
-            if value_time == False:
-                self.sections_check['section_state'][section_id] = 0
+            # 먼저 currentTime 값의 div id 랑 section_id 가 같은지 확인
+            
+                # A. section 당 학습시간이 부족한 경우
+                if value_time == False:
+                    self.sections_check['section_state'][section_id] = 0
 
-            elif value_time == True or (self.section_time - 1) > value_time: 
-                self.sections_check['section_state'][section_id] = 1
+                elif value_time == True or (self.section_time - 1) > value_time: 
+                    self.sections_check['section_state'][section_id] = 1
 
-            # B. section 당 학습시간이 충분한 경우
-            else:
-                mean = np.mean(self.sections_check['prob'][section_id])
-                # section 의 집중확률이 낮은경우
-                if mean < 50:
-                    self.sections_check['section_state'][section_id] = 2
-                # section 의 집중확률이 높은경우
+                # B. section 당 학습시간이 충분한 경우
                 else:
-                    self.sections_check['section_state'][section_id] = 3
-
-        
+                    mean = np.mean(self.sections_check['prob'][section_id])
+                # section 의 집중확률이 낮은경우
+                    if mean < 50:
+                        self.sections_check['section_state'][section_id] = 2
+                # section 의 집중확률이 높은경우
+                    else:
+                        self.sections_check['section_state'][section_id] = 3
+            
+            
 
     # section_state 값에 따라 각 section의 style 을 업데이트
     def set_section_style(self, section_state):
@@ -203,9 +214,9 @@ class focus_notice_player:
         elif section_state == 2:
             init_style['background'] = self.section_color[2]
 
-        else:
+        elif section_state == 3:
             init_style['background'] = self.section_color[3]
-        
+
         return init_style
                     
             
