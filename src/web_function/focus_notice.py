@@ -33,6 +33,7 @@ class focus_notice_player:
         # -> section_stored 함수에서, 이전 섹션과 이후 섹션 확인하기 위함.\
         self.current_video_section = None
 
+        self.clicked_section = None
 
         # sections : 각 집중구간블록이 담긴 어레이
         # 어레이 형태로 묶어야 html 에서 한번에 랜더링된다.
@@ -75,7 +76,7 @@ class focus_notice_player:
 
         # marge_elements_Input : dash에 callback으로 넣을 Input객체를 리스트 형태로 저장
         self.marge_sections_Input = [Input('btn {0}'.format(i), 'n_clicks') for i in range(self.section_num)]
-        self.marge_sections_Input.insert(0,Input('video_player', 'duration'))
+        # self.marge_sections_Input.insert(0,Input('video_player', 'duration'))
 
         # marge_sections_Output : dash 에 callback으로 넣을 Output 객체를 리스트 형태로 저장
         self.marge_sections_Output = [Output('btn {0}'.format(i), 'style') for i in range(self.section_num)]        

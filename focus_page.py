@@ -9,7 +9,7 @@ layout = html.Div(
             children = [
                 html.H2(
                     className = 'title',
-                    children = ['집중도그래프확인']
+                    children = ['집중도 그래프']
                 )
             ]
         ),
@@ -32,7 +32,7 @@ layout = html.Div(
                     children = [
                         html.H2(
                             className = 'title',
-                            children = ['집중도 현황판']
+                            children = ['집중도 확인']
                         )
                     ]
                 ),
@@ -47,7 +47,7 @@ layout = html.Div(
                                 "border-radius" : '10px',
                                 'padding' : '5px',
                                 'width' : '220px',
-                                'box-shadow' :  '0 5px 18px -7px rgb(185, 185, 185)',
+                                # 'box-shadow' :  '0 5px 18px -7px rgb(185, 185, 185)',
                             }
                         ),
                         html.Div(id ='divSpace_0'),
@@ -57,11 +57,29 @@ layout = html.Div(
                             children = [
                                 html.Div(
                                     id = 'currentFocusFigure',
-                                    children = []
+                                    children = [
+                                        html.H3(
+                                            id = 'currentFocus Index',
+                                            children = ['현재집중도 :']
+                                        ),
+                                        html.H3(
+                                            id = 'currentFocus Result',
+                                            children = []
+                                        )
+                                    ]
                                 ),
                                 html.Div(
-                                    id = "meanFocusFigure",
-                                    children = []
+                                    id = "durationTimeFigure",
+                                    children = [
+                                        html.H3(
+                                            id = 'durationTime Index',
+                                            children = ['학습시간 :']
+                                        ),
+                                        html.H3(
+                                            id = 'durationTime Result',
+                                            children = []
+                                        )
+                                    ]
                                 )
                             ]
                         ),

@@ -70,6 +70,7 @@ div[id~='btn']:hover{
     align-items: center;
     padding-left : 10px;
     padding-right : 10px;
+    margin-bottom : 15px;
     /* background-color : #E9E9E9; */
     /* border : 2px solid #868585; */
     box-shadow: 0 5px 18px -7px rgb(185, 185, 185);
@@ -125,12 +126,13 @@ span[class ~= 'Info']{
     flex-direction: row;
     justify-content : space-between;
     align-items: center;
-    border-top : 1px solid #c4c4c4;
+    /* border-top : 1px solid #c4c4c4; */
 }
 
 #focusNoticeTitle{
     color : #6f6f6f;
     margin-left : 10px;
+    margin-right : 0px;
 }
 
 #focusHeaderChild1{
@@ -138,20 +140,21 @@ span[class ~= 'Info']{
     flex-direction: row;
     justify-content : space-between;
     align-items: center;
-    width : 560px;
+    width : 540px;
 }
 
-
+/* #4486F6 */
 #focusFigureActivateBtn{
     display : flex;
     justify-content : center;
     align-items: center;
-    width : 85px;
+    width : 150px;
     height : 40px;
     border-radius : 10px;
     background-color: #4486F6;
     color : #fff;
     margin-left : 20px;
+    margin-bottom : 10px;
     box-shadow: 0 5px 18px -7px rgb(85, 85, 85);
 }
 #focusFigureActivateBtn:hover{
@@ -196,7 +199,7 @@ span[class ~= 'Info']{
 
 .graphContainer{
     display :flex;
-    flex-direction: columns;
+    flex-direction: column;
     justify-content : center;
     width : 690px;
     height : 425px;
@@ -206,38 +209,53 @@ span[class ~= 'Info']{
 }
 
 
-.focusFigureContainer{
-    display : flex;
-    flex-direction : row;
-    justify-content : center;
-    height : 150px;
-}
-
 .focusProbBoard{
     display : flex;
     flex-direction: row;
     justify-content : center;
 }
 
+.focusFigureContainer{
+    display : flex;
+    flex-direction : column;
+    justify-content : center;
+    height : 130px;
+    width : 200px;
+    border-radius : 10px;
+    padding : 10px;
+    box-shadow: 0 5px 18px -7px rgb(158, 158, 158);
+}
+
+
+#durationTimeFigure{
+    display : flex;
+    flex-direction : row;
+    justify-content : flex-start;
+    align-items: center;
+}
+
 #divSpace_0{
     display : flex;
-    width : 20px;
+    width : 30px;
     height : 150px;
     border-right: 1px solid #c4c4c4;
 }
 #divSpace_1{
     display : flex;
-    width : 20px;
-    height : 125px;
+    width : 30px;
+    height : 150px;
 }
 
 #currentFocusFigure{
     display : flex;
-    width : 200px;
-    height : 125px;
-    border-radius : 10px;
-    padding : 10px;
-    box-shadow: 0 5px 18px -7px rgb(158, 158, 158);
+}
+
+h3[id ~= ' Index']{
+    color : #6f6f6f;
+}
+h3[id ~= ' Result']{
+    color : #6f6f6f;
+    font-size : 95%;
 }
 
 /* #meanFocusFigure{
