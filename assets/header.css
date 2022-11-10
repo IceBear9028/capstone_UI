@@ -201,11 +201,19 @@ span[class ~= 'Info']{
     display :flex;
     flex-direction: column;
     justify-content : center;
-    width : 690px;
-    height : 425px;
-    padding-bottom : 15px;
-    margin-bottom : 15px;
+    width : 400px;
+    height : 280px;
     border-bottom : 1px solid #c4c4c4;
+}
+
+.sectionFocusProbBoard{
+    display : flex;
+    justify-content : center;
+    align-items : center;
+    width : 700px;
+    height : 300px;
+    border : 1px solid #c4c4c4;
+    border-radius: 10px;
 }
 
 
@@ -214,6 +222,15 @@ span[class ~= 'Info']{
     flex-direction: row;
     justify-content : center;
 }
+
+.currentElementContainer{
+    display : flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items : center
+}
+
+
 
 .focusFigureContainer{
     display : flex;
