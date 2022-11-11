@@ -190,7 +190,11 @@ app.layout = html.Div(
         ),
         html.Div(
             id = 'focusContainer',
-            children = []
+            children = [],
+            style = {
+                'display' : 'flex',
+                'align-content' : 'space-between'
+            }
         )
     ]
 )

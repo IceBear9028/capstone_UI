@@ -5,17 +5,17 @@ layout = html.Div(
     className = 'focusResultContainer',
     children =[
         html.Div(
-            className = 'titleContainer',
-            children = [
-                html.H2(
-                    className = 'title',
-                    children = ['집중도 그래프']
-                )
-            ]
-        ),
-        html.Div(
             className = "focusProbViewContainer",
             children = [
+                html.Div(
+                    className = 'titleContainer',
+                    children = [
+                        html.H2(
+                            className = 'title',
+                            children = ['집중도 그래프']
+                        )
+                    ]
+                ),
                 html.Div(
                     className = 'sectionFocusProbBoard',
                     children = []
@@ -25,7 +25,7 @@ layout = html.Div(
                     children = [
                         html.H2(
                             className = 'title',
-                            children = ['집중도 확인']
+                            children = ['집중도 그래프']
                         )
                     ]
                 ),
@@ -88,7 +88,7 @@ layout = html.Div(
                                     id = 'focus1',
                                     style = {
                                         'border-radius' : '15px',
-                                        'height' : '300px'
+                                        'height' : '235px'
                                     }
                                 ),
                             ]

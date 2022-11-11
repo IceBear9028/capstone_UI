@@ -10,7 +10,6 @@ body{
 }
 
 #title{
-    margin-top : 10px;
     margin-left: 10px;
     /* border-bottom : 2px solid #868585; */
     color : #6f6f6f;
@@ -38,12 +37,13 @@ video{
     display : flex;
     flex-direction : column;
     justify-content: center; 
-    align-content: center;
+    align-content: space-between;
     width : 900px;
     height : 750px;
     /* border : 1px solid #808080; */
     box-shadow: 0 5px 18px -7px rgb(85, 85, 85);
     border-radius : 10px;
+    padding-top : 0px;
     padding-bottom : 5px;
     padding-left : 15px;
     padding-right: 15px;
@@ -167,13 +167,14 @@ span[class ~= 'Info']{
 .focusResultContainer{
     display : flex;
     flex-direction : column;
-    justify-content: center;
+    justify-content: space-between;
     align-content: center;
     width : 700px;
     height : 750px;
     background-color : #f6f6f6;
     box-shadow: 0 5px 18px -7px rgb(129, 129, 129);
     border-radius : 10px;
+    padding-top : 10px;
     padding-left : 15px;
     padding-right : 15px;
     margin-left : 20px;
@@ -202,16 +203,16 @@ span[class ~= 'Info']{
     flex-direction: column;
     justify-content : center;
     width : 400px;
-    height : 280px;
-    border-bottom : 1px solid #c4c4c4;
+    height : 240px;
 }
 
 .sectionFocusProbBoard{
     display : flex;
     justify-content : center;
     align-items : center;
+    margin-bottom : 15px;
     width : 700px;
-    height : 300px;
+    height : 350px;
     border : 1px solid #c4c4c4;
     border-radius: 10px;
 }
@@ -221,6 +222,7 @@ span[class ~= 'Info']{
     display : flex;
     flex-direction: row;
     justify-content : center;
+    height : 270px;
 }
 
 .currentElementContainer{
@@ -236,10 +238,11 @@ span[class ~= 'Info']{
     display : flex;
     flex-direction : column;
     justify-content : center;
-    height : 130px;
-    width : 200px;
+    height : 70px;
+    width : 210px;
     border-radius : 10px;
     padding : 10px;
+    margin-top : 15px;
     box-shadow: 0 5px 18px -7px rgb(158, 158, 158);
 }
 
@@ -254,7 +257,7 @@ span[class ~= 'Info']{
 #divSpace_0{
     display : flex;
     width : 30px;
-    height : 150px;
+    height : 240px;
     border-right: 1px solid #c4c4c4;
 }
 #divSpace_1{
@@ -267,12 +270,19 @@ span[class ~= 'Info']{
     display : flex;
 }
 
-h3[id ~= ' Index']{
+h3[id ~= 'Index']{
     color : #6f6f6f;
+    margin-top : 7px;
+    margin-bottom: 5px;
+    margin-left : 10px;
+    font-size :100%;
 }
-h3[id ~= ' Result']{
+h3[id ~= 'Result']{
     color : #6f6f6f;
-    font-size : 95%;
+    margin-top : 7px;
+    margin-bottom: 5px;
+    margin-left : 5px;
+    font-size : 100%;
 }
 
 /* #meanFocusFigure{
