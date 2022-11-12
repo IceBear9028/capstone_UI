@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 import math
 import numpy as np
 from dash_player import DashPlayer
-from dash import Dash, dcc, html, Input, Output,ctx
+from dash import Dash, dcc, html, Input, Output,ctx, State
 from flask import Flask, Response, request
 from src.model_api.streamer import Streamer
 from src.datastroage.graph_data import Datamanage
@@ -41,6 +41,13 @@ mean_focus_figure = 'meanFocusFigure'
 activate_focus_figure = 'focusFigureActivateBtn'
 focus_header = 'focusHeader'
 focus_header_child1 = 'focusHeaderChild1'
+
+# section별 그래프 보여주는 기능 이름들
+# a. state별로 데이터 수집 & 레이아웃 추가하는 기능
+section_focus_prob_board = 'sectionFocusProbBoard'
+focus1 = 'focusState 1'
+focus2 = 'focusState 2'
+focus3 = 'focusState 3'
 
 
 
@@ -207,75 +214,9 @@ app.layout = html.Div(
 
 # 그래프 뜨는것, 구간별로 확인
 
-# 버튼 눌렀을 때 페이지 나오게 설정
-
-@app.callback(
-    Output(focus_container, 'children'),
-    Input(activate_focus_figure, 'n_clicks'),
-    #Input(activate_focus_figure, 'pathname'),
-)
-def activate_focus_figure_page(n):
-    # 버튼이 눌리면
-    if n%2 == 1:
-        return focus_page.layout
 
 
-
-# 그래프 속성 설정
-@app.callback(
-    Output(graph_figure, 'figure'),
-    Input(interval, 'n_intervals')
-)
-def focus_1(num):
-    fig = plotly.tools.make_subplots(rows = 1, cols = 1)
-    fig['layout']['legend'] = {'x': 0, 'y': 1, 'xanchor': 'left'}
-    fig.append_trace({
-        'x' : graph_datamanage.data['real_time'],
-        'y' : graph_datamanage.data['focus_prob'],
-        'name' : 'focus',
-        'type' : 'scatter',
-        'mode' : 'lines',
-        'marker_color' : '#b4cbf3'
-    },1,1)
-    fig.append_trace({
-        'x' : graph_datamanage.data['real_time'],
-        'y' : np.full((1,len(graph_datamanage.data['focus_prob'])),0.5)[0],
-        'name' : 'threshold',
-        'type' : 'scatter',
-        'mode' : 'lines',
-        'marker_color' : 'rgb(230,230,230)'
-    },1,1)
-    fig.update_layout(
-        xaxis=dict(
-            showline=True,
-            showgrid=True,
-            showticklabels=True,
-            linecolor='rgb(204, 204, 204)',
-            linewidth=2,
-            ticks='outside',
-            tickfont=dict(
-                family='Arial',
-                size=12,
-                color='rgb(82, 82, 82)',
-            ),
-        ),
-        yaxis=dict(
-            showgrid=True,
-            zeroline=False,
-            showline=True,
-            showticklabels=True,
-        ),
-        showlegend=False,
-        plot_bgcolor='white'
-    )
-    fig.update_yaxes(range = [-0.1,1.1])
-    # 그래프 margin 제거
-    fig['layout'].update(
-        margin = dict(l=40, r=20, b=30, t=15 ),        
-    )
-    return fig
-
-
+# section 이동시 알림창 띄어주는 기능구현
 @app.callback(
     Output(confirm, 'displayed'),
     Output('confirmSectionEscape', 'displayed'),
@@ -376,6 +317,98 @@ def update_section(interval):
     style_list[-1]['border-bottom-right-radius'] = '8px'
 
     return style_list
+
+
+# 버튼 눌렀을 때 페이지 나오게 설정
+@app.callback(
+    Output(focus_container, 'children'),
+    Input(activate_focus_figure, 'n_clicks'),
+    #Input(activate_focus_figure, 'pathname'),
+)
+def activate_focus_figure_page(n):
+    # 버튼이 눌리면
+    if n%2 == 1:
+        return focus_page.layout
+
+
+# section 의 state 에 따라 그래프 레이아웃을 추가하는 기능
+@app.callback(
+    Output(section_focus_prob_board, 'children'),
+    Input(focus1, 'n_clicks'),
+    Input(focus2, 'n_clicks'),
+    Input(focus3, 'n_clicks'),
+    State(section_focus_prob_board, 'children')
+)
+def state_show_layout(*args):
+    if len(args[-1]) == 2:
+        args[-1].pop()
+    
+    
+    args[-1].append(focus_page.graph_layout)
+    return args[-1]
+
+convert_to_statenum = {
+    focus1 : 1,
+    focus2 : 2,
+    focus3 : 3
+}
+
+
+
+# 그래프 속성 설정
+@app.callback(
+    Output(graph_figure, 'figure'),
+    Input(interval, 'n_intervals')
+)
+def focus_1(num):
+    fig = plotly.tools.make_subplots(rows = 1, cols = 1)
+    fig['layout']['legend'] = {'x': 0, 'y': 1, 'xanchor': 'left'}
+    fig.append_trace({
+        'x' : graph_datamanage.data['real_time'],
+        'y' : graph_datamanage.data['focus_prob'],
+        'name' : 'focus',
+        'type' : 'scatter',
+        'mode' : 'lines',
+        'marker_color' : '#b4cbf3'
+    },1,1)
+    fig.append_trace({
+        'x' : graph_datamanage.data['real_time'],
+        'y' : np.full((1,len(graph_datamanage.data['focus_prob'])),0.5)[0],
+        'name' : 'threshold',
+        'type' : 'scatter',
+        'mode' : 'lines',
+        'marker_color' : 'rgb(230,230,230)'
+    },1,1)
+    fig.update_layout(
+        xaxis=dict(
+            showline=True,
+            showgrid=True,
+            showticklabels=True,
+            linecolor='rgb(204, 204, 204)',
+            linewidth=2,
+            ticks='outside',
+            tickfont=dict(
+                family='Arial',
+                size=12,
+                color='rgb(82, 82, 82)',
+            ),
+        ),
+        yaxis=dict(
+            showgrid=True,
+            zeroline=False,
+            showline=True,
+            showticklabels=True,
+        ),
+        showlegend=False,
+        plot_bgcolor='white'
+    )
+    fig.update_yaxes(range = [-0.1,1.1])
+    # 그래프 margin 제거
+    fig['layout'].update(
+        margin = dict(l=40, r=20, b=30, t=15 ),        
+    )
+    return fig
+
 
 
 # 5. 웹캠 연결용 서버

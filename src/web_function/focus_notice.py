@@ -1,4 +1,5 @@
 from dash import html, Input, Output
+import datetime
 import time
 import numpy as np
 import copy
@@ -64,7 +65,8 @@ class focus_notice_player:
         self.sections_check = {
             'time' : {},
             'prob' : {},
-            'section_state' : {}
+            'section_state' : {},
+            'real_time' : {}
         }
         # time : section 별 동영상 시청시간
         # prob : section 내 초당 집중도
@@ -99,6 +101,7 @@ class focus_notice_player:
             self.sections_check['time']['btn {0}'.format(i)] = False
             self.sections_check['prob']['btn {0}'.format(i)] = np.array([])
             self.sections_check['section_state']['btn {0}'.format(i)] = 0
+            self.sections_check['real_time']['btn {0}'.format(i)] = []
 
     # args[-2], args[-1]에, None 값을 처리하기 위한 함수
     def args_refine(self,accept,cancel):
@@ -188,6 +191,7 @@ class focus_notice_player:
         else:
             self.sections_check['time'][self.video_section] = True
             self.sections_check['prob'][self.video_section] = np.insert(self.sections_check['prob'][self.video_section], 0, int(prob*100))
+            self.sections_check['real_time'][self.video_section].append(datetime.datetime.now())
     
     # section 의 state를 return 하는 함수
     def save_section_state(self,current_time):

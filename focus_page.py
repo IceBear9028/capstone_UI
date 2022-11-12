@@ -16,9 +16,46 @@ layout = html.Div(
                         )
                     ]
                 ),
+                # section 마다의 집중도를 보여주는 보드(위에 보드)
                 html.Div(
-                    className = 'sectionFocusProbBoard',
-                    children = []
+                    id = 'sectionFocusProbBoard',
+                    children = [
+                        # section의 학습상태의 메뉴바 화면
+                        html.Div(
+                            className = 'focusStateMenuBar',
+                            children = [
+                                html.Div(
+                                    id = 'focusState 1',
+                                    children = [
+                                        html.Span(
+                                            id = 'state1Title',
+                                            children = ['학습미완료']
+                                        )
+                                    ]
+                                ), 
+                                html.Div(
+                                    id = 'focusState 2',
+                                    children = [
+                                        html.Span(
+                                            id = 'state2Title',
+                                            children = ['재학습필요']
+                                        )
+                                    ]
+                                ),
+                                html.Div(
+                                    id = 'focusState 3',
+                                    children = [
+                                        html.Span(
+                                            id = 'state3Title',
+                                            children = ['학습완료']
+                                        )
+                                    ]
+                                ),
+                            ]
+                        ),
+                        # 그래프, section 선택창이 띄어지는 구간
+                        # -> 여기에 'graph_layout' 레이아웃이 추가된다.
+                    ]
                 ),
                 html.Div(
                     className = 'titleContainer',
@@ -30,6 +67,7 @@ layout = html.Div(
                     ]
                 ),
                 html.Div(
+                    # 실시간 학습자 집중도를 보여주는 보드(아래 보드)
                     className = 'focusProbBoard',
                     children = [
                         html.Div(
@@ -87,8 +125,9 @@ layout = html.Div(
                                 dcc.Graph(
                                     id = 'focus1',
                                     style = {
-                                        'border-radius' : '15px',
-                                        'height' : '235px'
+                                        'border-radius' : 10,
+                                        'height' : '220px',
+                                        'width' : '390px',
                                     }
                                 ),
                             ]
@@ -99,3 +138,23 @@ layout = html.Div(
         ),
     ],
 )
+# state 눌렀을 때 기본 레이아웃
+graph_layout = html.Div(
+    className = 'focusStateGraphContainer',
+    children = [
+        dcc.Graph(
+            id = 'sectionFocusGraph',
+            style = {
+                'width': '550px',
+                'height' : '250px'
+            }
+        ),
+        # 여기 div 에 state값에 따라 들어가는 레이아웃이 달라진다.
+        html.Div(
+            id = 'sectionBox',
+            children = []
+        )
+    ]
+)
+
+# 1. state= 1일때 레이아웃

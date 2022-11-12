@@ -14,11 +14,17 @@
 
 # print(video_path)
 
-print(type(True))
-print(type(True)==bool)
-print(bool(1))
-print(bool(0))
-print(bool(-1))
-print(int(bool(None)))
-print('playing' in 'playing')
-print('abc' in 'abc')
+# print(type(True))
+# print(type(True)==bool)
+# print(bool(1))
+# print(bool(0))
+# print(bool(-1))
+# print(int(bool(None)))
+# print('playing' in 'playing')
+# print('abc' in 'abc')
+
+list =[0,1]
+
+list[1] = 3
+
+print(list)
