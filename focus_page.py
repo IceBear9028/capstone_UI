@@ -51,10 +51,32 @@ layout = html.Div(
                                         )
                                     ]
                                 ),
+                                dcc.Dropdown(
+                                    id = 'stateSectionDrop',  
+                                )
                             ]
                         ),
                         # 그래프, section 선택창이 띄어지는 구간
                         # -> 여기에 'graph_layout' 레이아웃이 추가된다.
+                        # state 눌렀을 때 기본 레이아웃
+                        
+                        html.Div(
+                            className = 'focusStateGraphContainer',
+                            children = [
+                                dcc.Graph(
+                                    id = 'sectionFocusGraph',
+                                    style = {
+                                        'width': '550px',
+                                        'height' : '250px'
+                                    }
+                                ),
+                                # 여기 div 에 state값에 따라 들어가는 레이아웃이 달라진다.
+                                # html.Div(
+                                #     id = 'sectionBox',
+                                #     children = []
+                                # )
+                            ]
+                        ),                       
                     ]
                 ),
                 html.Div(
@@ -138,23 +160,6 @@ layout = html.Div(
         ),
     ],
 )
-# state 눌렀을 때 기본 레이아웃
-graph_layout = html.Div(
-    className = 'focusStateGraphContainer',
-    children = [
-        dcc.Graph(
-            id = 'sectionFocusGraph',
-            style = {
-                'width': '550px',
-                'height' : '250px'
-            }
-        ),
-        # 여기 div 에 state값에 따라 들어가는 레이아웃이 달라진다.
-        html.Div(
-            id = 'sectionBox',
-            children = []
-        )
-    ]
-)
+
 
 # 1. state= 1일때 레이아웃

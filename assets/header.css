@@ -259,9 +259,31 @@ div[id ~= 'focusState']:hover{
 
 #sectionBox{
     display : flex;
-    flex-direction: row;
-    width : 570px;
+    width : 550px;
     height : 90px;
+    flex-direction: row;
+    overflow: scroll;
+    /*가로 스크롤 기능*/
+    overflow: auto;
+    white-space: nowrap;
+}
+/* section 버튼 */
+div[id ~= stateSectionBtn]{
+    display : flex;
+    align-content: center;
+    justify-content: center;
+    background-color: rgb(222, 222, 222);
+    margin-left : 15px;
+    width : 120px;
+    height : 40px;
+}
+div[id ~= stateSectionBtn]:hover{
+    background-color: rgb(190, 190, 190);
+}
+
+.stateSectionBtnTitle{
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .focusProbBoard{
@@ -277,8 +299,6 @@ div[id ~= 'focusState']:hover{
     justify-content: flex-start;
     align-items : center
 }
-
-
 
 .focusFigureContainer{
     display : flex;

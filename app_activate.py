@@ -1,7 +1,8 @@
 import plotly
+import plotly.express as px
 import plotly.graph_objects as go
-import math
 import numpy as np
+import re
 from dash_player import DashPlayer
 from dash import Dash, dcc, html, Input, Output,ctx, State
 from flask import Flask, Response, request
@@ -48,8 +49,34 @@ section_focus_prob_board = 'sectionFocusProbBoard'
 focus1 = 'focusState 1'
 focus2 = 'focusState 2'
 focus3 = 'focusState 3'
+section_focus_graph = 'sectionFocusGraph'
 
+dropdown = 'stateSectionDrop'
+# section_box = 'sectionBox'
 
+# 버튼의 Iutput 기능을 담을 리스트
+
+global state_button_input
+state_button_input = []
+
+global inputs
+
+inputs = {
+    "all_inputs": {
+    }
+}
+
+# state 의 sectoin 버튼 아이디를 section 의 숫자로 바꾸기 위한 딕셔너리
+convert_trigeredid_to_num = {}
+for i in range(30):
+    convert_trigeredid_to_num['btn {0}'.format(i)] = i
+
+# state의  secton 버튼 아이디를 section 의 
+convert_to_statenum = {
+    focus1 : 1,
+    focus2 : 2,
+    focus3 : 3
+}
 
 
 # 3. 웹 레이아웃 설정
@@ -99,8 +126,8 @@ app.layout = html.Div(
                         # https://community.plotly.com/t/dash-player-custom-component-playing-and-controlling-your-videos-with-dash/12349
                         id = video_player,
                         # url = "assets/test_Video/JSON프론트엔드2.mp4",
-                        # url = "assets/test_Video/뉴진스(NewJeans)'Attention'.mp4",
-                        url = "assets/test_Video/실험계획법.mp4",
+                        url = "assets/test_Video/뉴진스(NewJeans)'Attention'.mp4",
+                        # url = "assets/test_Video/실험계획법.mp4",
                         controls = True,
                         width ='900px',
                         height = '490px',
@@ -254,7 +281,15 @@ def generate_notice(duration_time, situation_A, situation_B):
     else:
         # A,B 상황에 대해서 학습자가 다른 section의 학습을 원할 때 위에서 저장한 section의 위치로 이동한다.
         if situation_A or situation_B :
+            # 재학습하는 것이기 때문에, 해당 section 에 대해서 모두 초기화를 시킨다.
+            focus_notice.sections_check['time'][focus_notice.clicked_section] = False
+            focus_notice.sections_check['prob'][focus_notice.clicked_section] = np.array([])
+            focus_notice.sections_check['section_state'][focus_notice.clicked_section] = 0
+            focus_notice.sections_check['real_time'][focus_notice.clicked_section] = []
+
+            # 그리고 해당 section 으로 넘어간다.
             return focus_notice.sections_timeline[focus_notice.clicked_section]
+            
         # 다른 section으로 넘어가기를 원치 않을 때 계속 영상을 보게 된다.
 
 #현재의 집중도를 확인하는 기능
@@ -283,9 +318,7 @@ def current_time_check(n, current_time):
     video_time = int(current_time)
     focus_notice.section_mean_cal(graph_datamanage.data['video_time'],graph_datamanage.data['focus_prob'])
     focus_notice.save_section_state(current_time)
-    # print(focus_notice.sections_check)
 
-    # print(graph_datamanage.data)
     return [html.Span(n)]
 
 
@@ -330,30 +363,156 @@ def activate_focus_figure_page(n):
     if n%2 == 1:
         return focus_page.layout
 
-
-# section 의 state 에 따라 그래프 레이아웃을 추가하는 기능
+"""
+state에 따라 section의 데이터를 보여줄 수 있는 dropdown 생성
+-> 페기 ㅅㅂㅅㅂㅆㅂ html 버튼의 기능적 한계에 다다름
 @app.callback(
-    Output(section_focus_prob_board, 'children'),
+    Output(section_box,'children'),
     Input(focus1, 'n_clicks'),
     Input(focus2, 'n_clicks'),
     Input(focus3, 'n_clicks'),
-    State(section_focus_prob_board, 'children')
+    State(section_box,'children'),
 )
 def state_show_layout(*args):
-    if len(args[-1]) == 2:
-        args[-1].pop()
-    
-    
-    args[-1].append(focus_page.graph_layout)
+    # if len(args[-2]) == 2:
+    #     args[-2].pop()
+    # 기존에 있던 section 버튼을 삭제한다.
+    global state_button_input
+
+    args[-1].clear()
+    state_button_input.clear()
+
+    clicked_state = convert_to_statenum[ctx.triggered_id]
+    section_num = 0
+    for value in focus_notice.sections_check['section_state'].values():
+        if value == clicked_state:
+            # global state_button_input
+            state_button_input.append(Input('stateSectionBtn {0}'.format(section_num), 'n_clicks'))
+            # global inputs
+            # inputs['all_inputs']['Btn{0}'.format(section_num)] = Input('stateSectionBtn {0}'.format(section_num), 'n_clicks')
+
+            args[-1].append(
+                html.Div(
+                    id = 'stateSectionBtn {0}'.format(section_num),
+                    n_clicks = 0,
+                    children = [
+                        html.P(
+                            className = 'stateSectionBtnTitle',
+                            children = ['section {0}'.format(section_num + 1)] 
+                        )
+                    ]
+                ))
+        section_num += 1
+            
     return args[-1]
+"""
+@app.callback(
+    Output(dropdown, 'options'),
+    Input(focus1, 'n_clicks'),
+    Input(focus2, 'n_clicks'),
+    Input(focus3, 'n_clicks'),
+)
+def dropdown_activate(n1, n2, n3):
+    clicked_state = convert_to_statenum[ctx.triggered_id]
+    options = []
+    for key,value in focus_notice.sections_check['section_state'].items():
+        if value == clicked_state:
+            options.append({'label' : '{} section'.format(convert_trigeredid_to_num[key] + 1), 'value' : key})
+    
+    return options
+            
+    
+# dropdown에 선택한 section 들을 
+@app.callback(
+    Output(section_focus_graph, 'figure'),
+    Input(dropdown, 'value')
+)
+def show_graph_section(value):
+    # fig = px.line(
+    #     x = focus_notice.sections_check['real_time'][value],
+    #     y = focus_notice.sections_check['prob'][value],
+    # )
+    fig = plotly.tools.make_subplots(rows = 1, cols = 1)
+    fig['layout']['legend'] = {'x': 0, 'y': 1, 'xanchor': 'left'}
+    fig.append_trace({
+        'x' : focus_notice.sections_check['real_time'][value],
+        'y' : focus_notice.sections_check['prob'][value],
+        'name' : 'focus',
+        'type' : 'scatter',
+        'mode' : 'lines',
+        'marker_color' : '#b4cbf3'
+    },1,1)
+    fig.append_trace({
+        'x' : focus_notice.sections_check['real_time'][value],
+        'y' : np.full((1,len(focus_notice.sections_check['real_time'][value])),50)[0],
+        'name' : 'threshold',
+        'type' : 'scatter',
+        'mode' : 'lines',
+        'marker_color' : 'rgb(230,230,230)'
+    },1,1)
+    fig.update_layout(
+        xaxis=dict(
+            showline=True,
+            showgrid=True,
+            showticklabels=True,
+            linecolor='rgb(204, 204, 204)',
+            linewidth=2,
+            ticks='outside',
+            tickfont=dict(
+                family='Arial',
+                size=12,
+                color='rgb(82, 82, 82)',
+            ),
+        ),
+        yaxis=dict(
+            showgrid=True,
+            zeroline=False,
+            showline=True,
+            showticklabels=True,
+        ),
+        showlegend=False,
+        plot_bgcolor='white'
+    )
+    fig.update_yaxes(range = [-10,105])
+    # 그래프 margin 제거
+    fig['layout'].update(
+        margin = dict(l=40, r=20, b=30, t=15 ),        
+    )
+    return fig
 
-convert_to_statenum = {
-    focus1 : 1,
-    focus2 : 2,
-    focus3 : 3
-}
 
 
+
+
+# section 확인버튼을 누르면 해당 section 의 그래프를 보여주는 기능
+"""
+@app.callback(
+    Output(section_focus_graph, 'figure'),
+    state_button_input,
+    # Input(focus1, 'n_clicks'),
+    # Input(focus2, 'n_clicks'),
+    # Input(focus3, 'n_clicks'),
+)
+def show_graph_section(*args):
+    # section_numb = re.sub(r'[^0-9]', '', ctx.triggered_id)
+    # section_id = 'btn {0}'.format(section_numb)
+    section_id = convert_trigeredid_to_num[ctx.triggered_id]
+
+    print(section_id)
+    print('____________________________________________')
+
+    fig = px.line(
+        x = focus_notice.sections_check['real_time'][section_id],
+        y = focus_notice.sections_check['prob'][section_id],
+    )
+    # fig =go.Scatter(
+    #         x=focus_notice.sections_check['real_time'][section_id], 
+    #         y=focus_notice.sections_check['prob'][section_id],
+    #     )
+    return fig, args[-1]
+"""
+    
+    
 
 # 그래프 속성 설정
 @app.callback(
@@ -431,6 +590,7 @@ def stream_gen( src ):
                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
             
             # 2. 깆고온 frame 으로 집중도 추출 및 현재시간과 영상시청 시간 기록
+            # print(focus_notice.sections_check)
             graph_datamanage.current_time, graph_datamanage.focus_prob = streamcam.focus_result()
             graph_datamanage.video_time = video_time
             graph_datamanage.start()
