@@ -8,7 +8,10 @@ class focus_notice_player:
     def __init__(self):
         # section_num : 영상에 대한 구간 갯수
         self.section_num = 30
+
+        # section_container_width : 영상에 대한
         self.section_container_width = 895
+
         # elements_number : 집중구간 단위 블록의 갯수
         # section_time : 동영상 구간을 30개로 나누었을 때의 시간
         self.section_time = 0
@@ -23,11 +26,11 @@ class focus_notice_player:
             'height' : 'auto',
             'width' : '{0}px'.format(self.section_container_width/self.section_num),
         }
+
         # section_color : sections_check['section_state'] 값에 따른 색 변화
         # 색 순서 -> 측정x, 학습시간부족, 집중도낮음, 집중도높음
-        # self.section_color = ['#fff', '#D0D2D8', '#E1876B', '#A6DB76']
-
         self.section_color = ['#fff', '#D0D2D8', '#F7B7A8', '#A6E27F']
+
         # video_length : 학습동영상의 길이
         self.video_length = 0
 
@@ -35,6 +38,7 @@ class focus_notice_player:
         # -> section_stored 함수에서, 이전 섹션과 이후 섹션 확인하기 위함.\
         self.current_video_section = None
 
+        # clicked_section : section 버튼을 눌렀을 때, 해당 section 버튼의 id 를 저장한다.
         self.clicked_section = None
 
         # sections : 각 집중구간블록이 담긴 어레이
@@ -48,6 +52,8 @@ class focus_notice_player:
             ) for i in range(self.section_num)
         ]
 
+        # _time 변수는 self.cal_watching_time() 함수를 작동하는데 사용 
+        # -> 이 함수는 section 의 시청시간을 기록하는 기능을 갖는다.
         self.start_time = None
         self.end_time = None
         self.watching_time = None
@@ -89,6 +95,7 @@ class focus_notice_player:
         # 재상 section의 위치를 저장하는 변수
         self.current_section = "btn 0"
 
+
     # generate_element 함수 실행하면 div가 생성된다.
     # 이 함수는 한번만 실행한다(초기값들을 설정하기 위한 함수).
     def generate_section(self, video_length):
@@ -103,22 +110,6 @@ class focus_notice_player:
             self.sections_check['prob']['btn {0}'.format(i)] = np.array([])
             self.sections_check['section_state']['btn {0}'.format(i)] = 0
             self.sections_check['real_time']['btn {0}'.format(i)] = []
-
-    # args[-2], args[-1]에, None 값을 처리하기 위한 함수
-    def args_refine(self,accept,cancel):
-        if accept == None or cancel == None:
-            if accept == None and cancel != None:
-                self.confirm_data['accept'] = 0
-                self.confirm_data['cancel'] = cancel
-
-            elif cancel == None and accept != None:
-                self.confirm_data['accept'] = accept
-                self.confirm_data['cancel'] = 0
-            else:
-                pass
-        else:
-            self.confirm_data['accept'] = accept
-            self.confirm_data['cancel'] = cancel
 
     # section 당 시청한 시간을 계산한다.
     def cal_watching_time(self, on_off):

@@ -1,15 +1,16 @@
 import plotly
 import numpy as np
 from dash_player import DashPlayer
-from dash import Dash, dcc, html, Input, Output,ctx, State
+from dash import Dash, dcc, html, Input, Output,ctx
 from flask import Flask, Response, request
 from src.model_api.streamer import Streamer
 from src.datastroage.graph_data import Datamanage
 from src.web_function.focus_notice import focus_notice_player
 import dash_bootstrap_components as dbc
 
-import focus_page 
+import pages.focusViewPage as focus_page 
 
+# 실시간 그래프, 웹캠서버, 집중도 확인 기능 클래스의 인스턴스 생성
 graph_datamanage = Datamanage()
 streamcam = Streamer()
 focus_notice = focus_notice_player()
@@ -20,9 +21,8 @@ focus_result = streamcam.focus_prob
 # -> 사용자의 집중도 결과를 저장 ()
 
 
-
-# 1. 데이터 프레임 불러오기
-
+# html요소를 callback 함수에 연결하기 위해 id, className 를 변수로 저장
+# -> class, id가 바뀌어도 작동하는 장점을 가짐
 confirm = 'confirmSection'
 graph_figure = 'focus1'
 frame = 'webcam_frame'
@@ -31,7 +31,6 @@ interval = 'interval'
 video_player = 'video_player'
 video_current_time = 'videoCurrentTime'
 marking_color_info_container = 'markingColorInfoContainer'
-
 focus_container = 'focusContainer'
 current_focus_figure = 'currentFocusFigure'
 mean_focus_figure = 'meanFocusFigure'
@@ -50,12 +49,13 @@ section_focus_graph = 'sectionFocusGraph'
 dropdown = 'stateSectionDrop'
 
 
-# state 의 sectoin 버튼 아이디를 section 의 숫자로 바꾸기 위한 딕셔너리
+
+# state의 sectoin 버튼 아이디를 section 의 숫자로 바꾸기 위한 딕셔너리
 convert_trigeredid_to_num = {}
 for i in range(30):
     convert_trigeredid_to_num['btn {0}'.format(i)] = i
 
-# state의  secton 버튼 아이디를 section 의 
+# state의  secton 버튼 아이디를 state 값으로 변경해주는 딕셔너리
 convert_to_statenum = {
     focus1 : 1,
     focus2 : 2,
@@ -75,7 +75,6 @@ convert_id_to_style_color = {
     focus2 : '#F7C4B5',
     focus3 : '#B2E492'
 }
-#EDB29F
 
 # 3. 웹 레이아웃 설정
 server = Flask(__name__)
@@ -89,11 +88,6 @@ app = Dash(__name__, server=server, external_stylesheets=[dbc.icons.FONT_AWESOME
 app.layout = html.Div(
     className = "container",
     children = [
-        # 폰트 사용을 위한 외부 js 파일 다운
-        # html.Script(
-        #     src = "https://kit.fontawesome.com/abfbdf2860.js",
-        #     crossOrigin = "anonymous"
-        # ),
         dcc.ConfirmDialog(
             id = confirm,
             message = '영상구간을 다시 재학습할건가요?'
@@ -117,10 +111,7 @@ app.layout = html.Div(
                             html.H2(
                                 id = 'title',
                                 children = [
-                                    html.I(
-                                        className = "fa-solid fa-film",
-                                        ),
-                                    ' Focus Player'
+                                    'Focus Player'
                                 ]
                             )
                         ]
@@ -245,16 +236,6 @@ app.layout = html.Div(
         )
     ]
 )
-    
-# 동영상 프로그레시브 바 추가
-
-# 그린 -> 집중
-# 레드 -> 비집중
-# 옐로우 -> 진행중 
-
-# 그래프 뜨는것, 구간별로 확인
-
-
 
 # section 이동시 알림창 띄어주는 기능구현
 @app.callback(
@@ -303,8 +284,6 @@ def generate_notice(duration_time, situation_A, situation_B):
             # 그리고 해당 section 으로 넘어간다.
             return focus_notice.sections_timeline[focus_notice.clicked_section]
             
-        # 다른 section으로 넘어가기를 원치 않을 때 계속 영상을 보게 된다.
-
 #현재의 집중도를 확인하는 기능
 @app.callback(
     Output('currentFocus Result', 'children'),
@@ -312,9 +291,6 @@ def generate_notice(duration_time, situation_A, situation_B):
     Input(interval, 'n_intervals')
 )
 def focus_check(time):
-    # focus = graph_datamanage.data['focus_prob'].pop()
-    # focus_result = np.trunc(graph_datamanage.data['focus_prob'].pop() * 100)
-    # focus_result = round(graph_datamanage.data['focus_prob'].pop(), 2)
     minute, second = np.divmod(time, 60)
     focus = graph_datamanage.data['focus_prob']
     return str(round(focus[-1]*100, 2)) + '%', ' {0}min {1}sec'.format(minute, second)
@@ -339,7 +315,6 @@ def current_time_check(n, current_time):
 @app.callback(
     focus_notice.marge_sections_Output,
     Input(interval, 'n_intervals'),
-    # Input(video_player, 'currentTime')
 )
 def update_section(interval):
     global video_time
@@ -349,8 +324,6 @@ def update_section(interval):
         style_list.append(focus_notice.set_section_style(state_value))
     
     # 현재 동영상 시간을 받아서, 현재위치의 section을 알리는 style 을 추가한다.
-    # style_list[current_section]['border-bottom'] = '5px solid red'
-    # style_list[current_section]['box-shadow'] = '0 5px 18px -7px rgba(0,0,0,4)'
     style_list[current_section]['border-bottom'] = '8px solid red'
 
     # ++ 양끝단의 section을 둥글게 스타일처리하는 코드추가
@@ -392,7 +365,6 @@ def dropdown_activate(n1, n2, n3):
 
     return options
 
-
 # 그리고 버튼이 눌리는 효과 스타일 업데이트로 설정
 @app.callback(
     Output(focus1, 'style'),
@@ -401,9 +373,6 @@ def dropdown_activate(n1, n2, n3):
     Input(focus1, 'n_clicks'),
     Input(focus2, 'n_clicks'),
     Input(focus3, 'n_clicks'),
-    # State(focus1, 'style'),
-    # State(focus2, 'style'),
-    # State(focus3, 'style'),
 )
 def state_button_style_update(*args):
     # 1. 처음 모든 버튼들의 스타일음 담는 리스트를 만든다.
@@ -416,12 +385,13 @@ def state_button_style_update(*args):
     
     # 3. 눌린 버튼의 style을 리스트에 업데이트 한다.
     button_style_list[change_btn_location] = {
-        'background-color' : convert_id_to_style_color[ctx.triggered_id]}
+        'background-color' : convert_id_to_style_color[ctx.triggered_id]
+        }
 
     # 4. 최종적으로 적용된 스타일이 담긴 리스트를 return 한다.
     return button_style_list
 
-# dropdown에 선택한 section 의 데이터를 그래프로 plot
+# dropdown에 section을 선택했을 때의 데이터를 그래프로 plot
 @app.callback(
     Output(section_focus_graph, 'figure'),
     Input(dropdown, 'value')
@@ -479,7 +449,6 @@ def show_graph_section(value):
     )
     return fig
     
-
 # 그래프 속성 설정
 @app.callback(
     Output(graph_figure, 'figure'),
@@ -534,9 +503,7 @@ def focus_1(num):
     )
     return fig
 
-
-
-# 5. 웹캠 연결용 서버
+# 웹캠 연결용 서버
 @server.route('/video')
 def stream():
     src = request.args.get('src', default=0, type = int)
