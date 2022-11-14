@@ -12,7 +12,9 @@ layout = html.Div(
                     children = [
                         html.H2(
                             className = 'title',
-                            children = ['집중도 그래프']
+                            children = [
+                                html.I(className = "fa-solid fa-arrow-trend-up"),
+                                ' 구간별 집중도그래프']
                         )
                     ]
                 ),
@@ -25,35 +27,70 @@ layout = html.Div(
                             className = 'focusStateMenuBar',
                             children = [
                                 html.Div(
-                                    id = 'focusState 1',
+                                    className = 'elementContainer',
                                     children = [
-                                        html.Span(
-                                            id = 'state1Title',
-                                            children = ['학습미완료']
-                                        )
-                                    ]
-                                ), 
-                                html.Div(
-                                    id = 'focusState 2',
-                                    children = [
-                                        html.Span(
-                                            id = 'state2Title',
-                                            children = ['재학습필요']
-                                        )
+                                        html.Div(
+                                            id = 'focusState_1',
+                                            children = [
+                                                html.I(
+                                                    className = "fa-solid fa-reply",
+                                                    style = {'font-size' : '20px', 'color' : '#6f6f6f'}
+                                                    ),
+                                                html.Span(
+                                                    id = 'state1Title BTN',
+                                                    children = [
+                                                        '학습미완료']
+                                                )
+                                            ]
+                                        ), 
+                                        html.Div(
+                                            id = 'focusState_2',
+                                            children = [
+                                                html.I(
+                                                    className = "fa-solid fa-face-tired",
+                                                    style = {'font-size' : '20px','color' : '#6f6f6f'}
+                                                    ),
+                                                html.Span(
+                                                    id = 'state2Title BTN',
+                                                    children = [
+                                                        '재학습필요']
+                                                )
+                                            ]
+                                        ),
+                                        html.Div(
+                                            id = 'focusState_3',
+                                            children = [
+                                                html.I(
+                                                    className = "fa-solid fa-face-smile",
+                                                    style = {'font-size' : '20px', 'color' : '#6f6f6f'}
+                                                    ),
+                                                html.Span(
+                                                    id = 'state3Title BTN',
+                                                    children = [
+                                                        '  학습완료']
+                                                )
+                                            ]
+                                        ),
                                     ]
                                 ),
                                 html.Div(
-                                    id = 'focusState 3',
+                                    className = 'dropdownContainer',
                                     children = [
                                         html.Span(
-                                            id = 'state3Title',
-                                            children = ['학습완료']
+                                            id = 'dropdownHeader',
+                                            children = ['구간 선택']
+                                        ),
+                                        dcc.Dropdown(
+                                            id = 'stateSectionDrop',
+                                            style = {
+                                                'width' : '140px',
+                                                'border-radius' : '10px',
+                                                'border' : '0px',
+                                                'background-color' : 'rgb(220, 220, 220)'
+                                            }
                                         )
                                     ]
                                 ),
-                                dcc.Dropdown(
-                                    id = 'stateSectionDrop',  
-                                )
                             ]
                         ),
                         # 그래프, section 선택창이 띄어지는 구간
@@ -66,8 +103,8 @@ layout = html.Div(
                                 dcc.Graph(
                                     id = 'sectionFocusGraph',
                                     style = {
-                                        'width': '550px',
-                                        'height' : '250px'
+                                        'width': '510px',
+                                        'height' : '310px'
                                     }
                                 ),
                                 # 여기 div 에 state값에 따라 들어가는 레이아웃이 달라진다.
@@ -84,7 +121,9 @@ layout = html.Div(
                     children = [
                         html.H2(
                             className = 'title',
-                            children = ['집중도 그래프']
+                            children = [
+                                html.I(className = "fa-solid fa-repeat"),
+                                ' 실시간 집중도']
                         )
                     ]
                 ),
@@ -99,7 +138,7 @@ layout = html.Div(
                                     src = "/video",
                                     id = "facePhoto",
                                     style = {
-                                        'border' : '1px solid #ddd',
+                                        'border' : '1px solid rgb(240, 240, 240)',
                                         "border-radius" : '10px',
                                         'padding' : '5px',
                                         'width' : '220px',
@@ -127,7 +166,7 @@ layout = html.Div(
                                             children = [
                                                 html.H3(
                                                     id = 'durationTime Index',
-                                                    children = ['학습시간 :']
+                                                    children = ['총학습시간 :']
                                                 ),
                                                 html.H3(
                                                     id = 'durationTime Result',
@@ -139,17 +178,15 @@ layout = html.Div(
                                 ),
                             ]
                         ),
-                        html.Div(id ='divSpace_0'),
-                        html.Div(id ='divSpace_1'),
                         html.Div(
                             className = 'graphContainer',
                             children = [
                                 dcc.Graph(
                                     id = 'focus1',
                                     style = {
-                                        'border-radius' : 10,
-                                        'height' : '220px',
-                                        'width' : '390px',
+                                        'border-radius' : '8px',
+                                        'height' : '230px',
+                                        'width' : '410px',
                                     }
                                 ),
                             ]

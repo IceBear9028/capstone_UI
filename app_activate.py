@@ -1,8 +1,5 @@
 import plotly
-import plotly.express as px
-import plotly.graph_objects as go
 import numpy as np
-import re
 from dash_player import DashPlayer
 from dash import Dash, dcc, html, Input, Output,ctx, State
 from flask import Flask, Response, request
@@ -19,7 +16,6 @@ focus_notice = focus_notice_player()
 
 global video_time
 video_time = 0
-# 0. 필요한 변수들 선언
 focus_result = streamcam.focus_prob
 # -> 사용자의 집중도 결과를 저장 ()
 
@@ -46,25 +42,13 @@ focus_header_child1 = 'focusHeaderChild1'
 # section별 그래프 보여주는 기능 이름들
 # a. state별로 데이터 수집 & 레이아웃 추가하는 기능
 section_focus_prob_board = 'sectionFocusProbBoard'
-focus1 = 'focusState 1'
-focus2 = 'focusState 2'
-focus3 = 'focusState 3'
+focus1 = 'focusState_1'
+focus2 = 'focusState_2'
+focus3 = 'focusState_3'
 section_focus_graph = 'sectionFocusGraph'
 
 dropdown = 'stateSectionDrop'
-# section_box = 'sectionBox'
 
-# 버튼의 Iutput 기능을 담을 리스트
-
-global state_button_input
-state_button_input = []
-
-global inputs
-
-inputs = {
-    "all_inputs": {
-    }
-}
 
 # state 의 sectoin 버튼 아이디를 section 의 숫자로 바꾸기 위한 딕셔너리
 convert_trigeredid_to_num = {}
@@ -78,12 +62,26 @@ convert_to_statenum = {
     focus3 : 3
 }
 
+# state 값을 색으로 변환
+convert_state_to_color = {
+    1 : '#D0D2D8',
+    2 : '#E1876B',
+    3 : '#A6DB76'
+}
+
+# state 버튼 id를 style 에 맞는 색으로 변환
+convert_id_to_style_color = {
+    focus1 : '#D0D2D8',
+    focus2 : '#F7C4B5',
+    focus3 : '#B2E492'
+}
+#EDB29F
 
 # 3. 웹 레이아웃 설정
 server = Flask(__name__)
-app = Dash(__name__, server=server)
+app = Dash(__name__, server=server, external_stylesheets=[dbc.icons.FONT_AWESOME])
+# font awesome 을 사용하려면 외부 스타일시트를 dbc로 다운받는다.
 
-# app.scripts.config.serve_locally = True
 
 # 도움받은 사이트 :
 # https://community.plotly.com/t/dash-player-custom-component-playing-and-controlling-your-videos-with-dash/12349
@@ -91,6 +89,11 @@ app = Dash(__name__, server=server)
 app.layout = html.Div(
     className = "container",
     children = [
+        # 폰트 사용을 위한 외부 js 파일 다운
+        # html.Script(
+        #     src = "https://kit.fontawesome.com/abfbdf2860.js",
+        #     crossOrigin = "anonymous"
+        # ),
         dcc.ConfirmDialog(
             id = confirm,
             message = '영상구간을 다시 재학습할건가요?'
@@ -113,7 +116,12 @@ app.layout = html.Div(
                         children = [
                             html.H2(
                                 id = 'title',
-                                children = ['플레이어']
+                                children = [
+                                    html.I(
+                                        className = "fa-solid fa-film",
+                                        ),
+                                    ' Focus Player'
+                                ]
                             )
                         ]
                     ),
@@ -188,7 +196,12 @@ app.layout = html.Div(
                                         ]
                                     ),
                                     html.Div(
-                                        "집중도 상세보기",
+                                        children = [
+                                            html.I(
+                                                className = "fa-solid fa-magnifying-glass",
+                                                style = {'color':'#fff', 'font-size' : '15px','margin-right' : '10px'}
+                                            ),
+                                            "집중도 상세보기"],
                                         id = activate_focus_figure,
                                         n_clicks = 0,
                                     ),
@@ -363,49 +376,7 @@ def activate_focus_figure_page(n):
     if n%2 == 1:
         return focus_page.layout
 
-"""
-state에 따라 section의 데이터를 보여줄 수 있는 dropdown 생성
--> 페기 ㅅㅂㅅㅂㅆㅂ html 버튼의 기능적 한계에 다다름
-@app.callback(
-    Output(section_box,'children'),
-    Input(focus1, 'n_clicks'),
-    Input(focus2, 'n_clicks'),
-    Input(focus3, 'n_clicks'),
-    State(section_box,'children'),
-)
-def state_show_layout(*args):
-    # if len(args[-2]) == 2:
-    #     args[-2].pop()
-    # 기존에 있던 section 버튼을 삭제한다.
-    global state_button_input
-
-    args[-1].clear()
-    state_button_input.clear()
-
-    clicked_state = convert_to_statenum[ctx.triggered_id]
-    section_num = 0
-    for value in focus_notice.sections_check['section_state'].values():
-        if value == clicked_state:
-            # global state_button_input
-            state_button_input.append(Input('stateSectionBtn {0}'.format(section_num), 'n_clicks'))
-            # global inputs
-            # inputs['all_inputs']['Btn{0}'.format(section_num)] = Input('stateSectionBtn {0}'.format(section_num), 'n_clicks')
-
-            args[-1].append(
-                html.Div(
-                    id = 'stateSectionBtn {0}'.format(section_num),
-                    n_clicks = 0,
-                    children = [
-                        html.P(
-                            className = 'stateSectionBtnTitle',
-                            children = ['section {0}'.format(section_num + 1)] 
-                        )
-                    ]
-                ))
-        section_num += 1
-            
-    return args[-1]
-"""
+# state 버튼을 눌렀을 때 해당되는 section 이 dropdown 에 업데이트
 @app.callback(
     Output(dropdown, 'options'),
     Input(focus1, 'n_clicks'),
@@ -418,20 +389,48 @@ def dropdown_activate(n1, n2, n3):
     for key,value in focus_notice.sections_check['section_state'].items():
         if value == clicked_state:
             options.append({'label' : '{} section'.format(convert_trigeredid_to_num[key] + 1), 'value' : key})
-    
+
     return options
-            
+
+
+# 그리고 버튼이 눌리는 효과 스타일 업데이트로 설정
+@app.callback(
+    Output(focus1, 'style'),
+    Output(focus2, 'style'),
+    Output(focus3, 'style'),
+    Input(focus1, 'n_clicks'),
+    Input(focus2, 'n_clicks'),
+    Input(focus3, 'n_clicks'),
+    # State(focus1, 'style'),
+    # State(focus2, 'style'),
+    # State(focus3, 'style'),
+)
+def state_button_style_update(*args):
+    # 1. 처음 모든 버튼들의 스타일음 담는 리스트를 만든다.
+    # ++ 순서는 Input이 먼저 적힌 순서
+    button_style_list = [None, None, None]
+
+    # 2. 눌린 버튼에 적용할 스타일 값에 대한 리스트에 넣을 위치를 찾는다.
+    # ++ 버튼이 눌린 아이디에 맞는 state 를 알려주는 딕셔너리 재사용
+    change_btn_location = convert_to_statenum[ctx.triggered_id] - 1
     
-# dropdown에 선택한 section 들을 
+    # 3. 눌린 버튼의 style을 리스트에 업데이트 한다.
+    button_style_list[change_btn_location] = {
+        'background-color' : convert_id_to_style_color[ctx.triggered_id]}
+
+    # 4. 최종적으로 적용된 스타일이 담긴 리스트를 return 한다.
+    return button_style_list
+
+# dropdown에 선택한 section 의 데이터를 그래프로 plot
 @app.callback(
     Output(section_focus_graph, 'figure'),
     Input(dropdown, 'value')
 )
 def show_graph_section(value):
-    # fig = px.line(
-    #     x = focus_notice.sections_check['real_time'][value],
-    #     y = focus_notice.sections_check['prob'][value],
-    # )
+    # 1. 해당 section 의 state에 해당하는 색을 찾는다.
+    color = convert_state_to_color[focus_notice.sections_check['section_state'][value]]
+
+    # 2. 그래프에 해당 색을 입힌다.
     fig = plotly.tools.make_subplots(rows = 1, cols = 1)
     fig['layout']['legend'] = {'x': 0, 'y': 1, 'xanchor': 'left'}
     fig.append_trace({
@@ -440,7 +439,7 @@ def show_graph_section(value):
         'name' : 'focus',
         'type' : 'scatter',
         'mode' : 'lines',
-        'marker_color' : '#b4cbf3'
+        'marker_color' : color
     },1,1)
     fig.append_trace({
         'x' : focus_notice.sections_check['real_time'][value],
@@ -479,39 +478,6 @@ def show_graph_section(value):
         margin = dict(l=40, r=20, b=30, t=15 ),        
     )
     return fig
-
-
-
-
-
-# section 확인버튼을 누르면 해당 section 의 그래프를 보여주는 기능
-"""
-@app.callback(
-    Output(section_focus_graph, 'figure'),
-    state_button_input,
-    # Input(focus1, 'n_clicks'),
-    # Input(focus2, 'n_clicks'),
-    # Input(focus3, 'n_clicks'),
-)
-def show_graph_section(*args):
-    # section_numb = re.sub(r'[^0-9]', '', ctx.triggered_id)
-    # section_id = 'btn {0}'.format(section_numb)
-    section_id = convert_trigeredid_to_num[ctx.triggered_id]
-
-    print(section_id)
-    print('____________________________________________')
-
-    fig = px.line(
-        x = focus_notice.sections_check['real_time'][section_id],
-        y = focus_notice.sections_check['prob'][section_id],
-    )
-    # fig =go.Scatter(
-    #         x=focus_notice.sections_check['real_time'][section_id], 
-    #         y=focus_notice.sections_check['prob'][section_id],
-    #     )
-    return fig, args[-1]
-"""
-    
     
 
 # 그래프 속성 설정
@@ -579,7 +545,6 @@ def stream():
                         mimetype='multipart/x-mixed-replace; boundary=frame' )
     except Exception as e :
         print('[wandlab] ', 'stream error : ',str(e))
-
 def stream_gen( src ):   
     try : 
         streamcam.run( src )
@@ -600,6 +565,7 @@ def stream_gen( src ):
         streamcam.stop()
 
 
+# 최종 서버 돌아감
 if __name__ == '__main__':
     app.run_server(debug=True)
 

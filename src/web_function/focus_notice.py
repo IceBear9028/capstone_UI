@@ -25,8 +25,9 @@ class focus_notice_player:
         }
         # section_color : sections_check['section_state'] 값에 따른 색 변화
         # 색 순서 -> 측정x, 학습시간부족, 집중도낮음, 집중도높음
-        # self.section_color = ['#fff', '#F7CE46', '#EA455A', '#63CA56']
-        self.section_color = ['#fff', '#D0D2D8', '#E1876B', '#A6DB76']
+        # self.section_color = ['#fff', '#D0D2D8', '#E1876B', '#A6DB76']
+
+        self.section_color = ['#fff', '#D0D2D8', '#F7B7A8', '#A6E27F']
         # video_length : 학습동영상의 길이
         self.video_length = 0
 
