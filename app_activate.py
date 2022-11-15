@@ -110,9 +110,7 @@ app.layout = html.Div(
                         children = [
                             html.H2(
                                 id = 'title',
-                                children = [
-                                    'Focus Player'
-                                ]
+                                children = ['E-Learning']
                             )
                         ]
                     ),
@@ -125,8 +123,8 @@ app.layout = html.Div(
                         # https://community.plotly.com/t/dash-player-custom-component-playing-and-controlling-your-videos-with-dash/12349
                         id = video_player,
                         # url = "assets/test_Video/JSON프론트엔드2.mp4",
-                        url = "assets/test_Video/뉴진스(NewJeans)'Attention'.mp4",
-                        # url = "assets/test_Video/실험계획법.mp4",
+                        # url = "assets/test_Video/뉴진스(NewJeans)'Attention'.mp4",
+                        url = "assets/test_Video/실험계획법.mp4",
                         controls = True,
                         width ='900px',
                         height = '490px',
@@ -145,10 +143,6 @@ app.layout = html.Div(
                                     html.Div(
                                         id = focus_header_child1,
                                         children = [
-                                            # html.H2(
-                                            #     id = 'focusNoticeTitle',
-                                            #     children = ['집중도저하구간 확인']
-                                            # ),
                                             html.Div(
                                                 className = marking_color_info_container,
                                                 children = [
@@ -178,7 +172,7 @@ app.layout = html.Div(
                                                             html.Div(className = 'gray Color'),
                                                             html.Span(
                                                                 className = 'gray Info',
-                                                                children = ['학습미완료']
+                                                                children = ['학습중']
                                                             )
                                                         ]
                                                     ),
@@ -534,7 +528,7 @@ def stream_gen( src ):
 
 # 최종 서버 돌아감
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
 
 
 

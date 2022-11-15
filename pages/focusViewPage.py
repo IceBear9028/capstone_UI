@@ -19,7 +19,7 @@ layout = html.Div(
                                         'margin-right' : '5px'
                                     }
                                 ),
-                                ' 구간별 집중도그래프']
+                                ' 구간별 집중도 확인']
                         )
                     ]
                 ),
@@ -43,8 +43,7 @@ layout = html.Div(
                                                     ),
                                                 html.Span(
                                                     id = 'state1Title BTN',
-                                                    children = [
-                                                        '학습미완료']
+                                                    children = ['학습중']
                                                 )
                                             ]
                                         ), 
@@ -57,8 +56,7 @@ layout = html.Div(
                                                     ),
                                                 html.Span(
                                                     id = 'state2Title BTN',
-                                                    children = [
-                                                        '재학습필요']
+                                                    children = ['재학습필요']
                                                 )
                                             ]
                                         ),
