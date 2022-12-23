@@ -7,8 +7,7 @@ from src.model_api.streamer import Streamer
 from src.datastroage.graph_data import Datamanage
 from src.web_function.focus_notice import focus_notice_player
 import dash_bootstrap_components as dbc
-
-import pages.focusViewPage as focus_page 
+import src.pages.focusViewPage as focus_page 
 
 # 실시간 그래프, 웹캠서버, 집중도 확인 기능 클래스의 인스턴스 생성
 graph_datamanage = Datamanage()
