@@ -1,5 +1,7 @@
-## 집중도 측정 모델을 이용한 E- Class 플레이어
+# 집중도 측정 모델을 이용한 E- Class 플레이어
 #### 2022 서울과학기술대학교 기계시스템디자인 기계정보공학과 capstone design
+
+[<img src="https://img.shields.io/badge/소개영상-FF0000?style=flat&logo=Youtube&logoColor=white"/>](https://www.youtube.com/watch?v=_AMti7yvX7Q)
 
 * 팀원 
   * 강한 [GitHub] 
@@ -9,8 +11,9 @@
 * 라이브러리 : <img src="https://img.shields.io/badge/Plotly & Dash-3F4F75?style=flat&logo=Plotly&logoColor=white"/> <img src="https://img.shields.io/badge/Flask-000000?style=flat&logo=Flask&logoColor=white"/>
 
 
-### capstone_UI 사용목적 :
-학습자의 집중도 평가 모델을 온라인학습시 학습자 스스로의 집중도를 실시간으로 확인하여 본인 스스로 학습유도를 하기 위해 개발
+### capstone_UI 개발목적 :
+학습자의 집중도 평가 모델을 온라인학습시 학습자 스스로의 집중도를 실시간으로 확인하여 본인 스스로 학습유도를 하기 위해 개발  
+
 
 
 ## 화면구성 :
